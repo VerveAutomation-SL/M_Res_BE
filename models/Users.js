@@ -2,6 +2,8 @@ const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
 
+const SALT_ROUNDS = 10;
+
 const User = sequelize.define("User", {
     UserId : {
         type: DataTypes.INTEGER,
@@ -13,14 +15,47 @@ const User = sequelize.define("User", {
         allowNull: false,
         unique: true,
     },
+    role: {
+        type: DataTypes.ENUM("Admin", "Host"),
+        allowNull: false,
+        defaultValue: "Host",
+        validate: {
+            isIn: {
+                args: [["Admin", "Host"]],
+                msg: "Role must be either 'Admin' or 'Host'",
+            }
+        }
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique: {
+            name: 'email',
+            msg: 'Email address already in use',
+        },
+        validate: {
+            isEmail: {
+                msg: 'Please provide a valid email address',
+            },
+            notEmpty: { msg: "Email is required" }
+        }
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+            notEmpty: {
+                msg: "Password is required",
+            }
+        }
+    },
+    PermissionId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'permissions',
+            key: 'PermissionId'
+        }
     },
     }, {
     timestamps: true,
@@ -29,17 +64,15 @@ const User = sequelize.define("User", {
     hooks: {
         beforeCreate: async (user) => {
             if (user.password) {
-                const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.password, salt);2
+                user.password = await bcrypt.hash(user.password, SALT_ROUNDS);
             }
         },
         beforeUpdate: async (user) => {
             if (user.changed('password')) {
-                const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.password, salt);
+                user.password = await bcrypt.hash(user.password, SALT_ROUNDS);
             }
         }
-    },
+    }
 })
 
 module.exports = User;

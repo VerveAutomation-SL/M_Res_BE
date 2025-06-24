@@ -7,10 +7,17 @@ const Permission = sequelize.define("Permission", {
         primaryKey: true,
         autoIncrement: true,
     },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+    types: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true,
+        defaultValue: [],
+        validate: {
+            isArray(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error("Permissions must be an array");
+                }
+            }
+        }
     },
     description: {
         type: DataTypes.STRING,
