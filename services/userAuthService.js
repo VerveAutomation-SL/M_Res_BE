@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/Users");
+const { generateTokens } = require("./tokenService");
+require("dotenv").config();
 
 
 const loginAdminService = async ({ userName, password }) => {
@@ -19,12 +21,10 @@ const loginAdminService = async ({ userName, password }) => {
 
         const userData = {userId: user.UserId, role: user.role, username: user.username, email: user.email}
 
-        // Generate JWT token
-        //const token = jwt.sign(userDate, process.env.JWT_SECRET, { expiresIn: '1h' });
+        // Generate JWT tokens
+        const tokens = generateTokens(userData); 
 
-        //return { token, userData };
-
-        return userData;
+        return { ...tokens, user: userData  };
 }
 
 const loginHostService = async ({ userName, password }) => {
@@ -43,12 +43,10 @@ const loginHostService = async ({ userName, password }) => {
 
      const userData = {userId: user.UserId, role: user.role, username: user.username, email: user.email}
 
-     // Generate JWT token
-     //const token = jwt.sign(userDate, process.env.JWT_SECRET, { expiresIn: '1h' });
+     // Generate JWT tokens
+     const tokens = generateTokens(userData); 
 
-     //return { token, userData };
-
-     return userData;
+     return { ...tokens, user: userData  };
 }
 
 const registerService = async ({ userName, email, password }) => {
@@ -67,7 +65,9 @@ const registerService = async ({ userName, email, password }) => {
             role: "Admin" // Default role for registration
         });
 
-        return { userId: newUser.UserId, username: newUser.username };
+        const userData = { userId: newUser.UserId, role: newUser.role, username: newUser.username, email: newUser.email };
+
+        return { user: userData };
 
 }
 

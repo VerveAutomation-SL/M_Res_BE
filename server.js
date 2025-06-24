@@ -11,7 +11,9 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use("/user", require("./routes/userAuthRoutes"));
+app.use("/auth", require("./routes/userAuthRoutes"));
+app.use("/token", require("./routes/tokenRoutes"));
+// protected routes
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

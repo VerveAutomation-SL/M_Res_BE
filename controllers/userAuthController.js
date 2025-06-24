@@ -1,5 +1,3 @@
-const express = require('express');
-
 const {loginAdminService, loginHostService, registerService} = require("../services/userAuthService");
 
 const loginAdminController = async (req, res) => {
@@ -13,10 +11,12 @@ const loginAdminController = async (req, res) => {
     }
 
     try {
-        const result = await loginAdminService({ userName, password });
+        const { accesstoken, user } = await loginAdminService({ userName, password });
         res.status(200).json({ 
             success: true, 
-            ...result 
+            message: "Admin Login successful",
+            accesstoken,
+            user 
         });
     } catch (error) {
         res.status(401).json({ 
@@ -36,10 +36,12 @@ const loginHostController = async (req, res) => {
         });
     }
     try {
-        const result = await loginHostService({ userName, password });
+        const { accesstoken, user } = await loginHostService({ userName, password });
         res.status(200).json({ 
             success: true, 
-            ...result 
+            message: "Host Login successful",
+            accesstoken,
+            user 
         });
     } catch (error) {
         res.status(401).json({ 
@@ -59,10 +61,11 @@ const registerController = async (req, res) => {
         });
     }
     try{
-        const result = await registerService({ userName, email, password });
+        const user = await registerService({ userName, email, password });
         res.status(201).json({ 
             success: true,
-             ...result 
+            message: "Admin registration successful",
+            user 
             });
 
     } catch (error) {
