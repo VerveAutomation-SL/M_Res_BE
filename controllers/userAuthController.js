@@ -1,7 +1,7 @@
-const {loginAdminService, loginHostService, registerService} = require("../services/userAuthService");
+const {loginService, registerService} = require("../services/userAuthService");
 
-const loginAdminController = async (req, res) => {
-    const {userName, password} = req.body;
+const loginController = async (req, res) => {
+    const {userName, password, role} = req.body;
 
     if (!userName?.trim() || !password?.trim()) {
         return res.status(400).json({
@@ -11,42 +11,17 @@ const loginAdminController = async (req, res) => {
     }
 
     try {
-        const { accesstoken, user } = await loginAdminService({ userName, password });
+        const { tokens, user } = await loginService({ userName, password, role });
         res.status(200).json({ 
             success: true, 
-            message: "Admin Login successful",
-            accesstoken,
+            message: `${role} Login successful`,
+            tokens,
             user 
         });
     } catch (error) {
-        res.status(401).json({ 
-            success: false,
-            message: error.message 
-        });
-    }
-}
-
-const loginHostController = async (req, res) => {
-    const {userName, password} = req.body;
-
-    if (!userName?.trim() || !password?.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: "Username and password are required"
-        });
-    }
-    try {
-        const { accesstoken, user } = await loginHostService({ userName, password });
-        res.status(200).json({ 
-            success: true, 
-            message: "Host Login successful",
-            accesstoken,
-            user 
-        });
-    } catch (error) {
-        res.status(401).json({ 
+        res.status(error.statusCode || 500).json({ 
             success: false, 
-            message: error.message 
+            message: error.message || "Internal Server Error"
         });
     }
 }
@@ -69,15 +44,14 @@ const registerController = async (req, res) => {
             });
 
     } catch (error) {
-        res.status(500).json({ 
+        res.status(error.statusCode || 500).json({ 
             success: false, 
-            message: error.message 
+            message: error.message || "Internal Server Error"
         });
     }
 }
 
 module.exports = {
-    loginAdminController, 
-    loginHostController, 
+    loginController,  
     registerController
 };

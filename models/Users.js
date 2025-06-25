@@ -1,6 +1,7 @@
 const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
+const Permission  = require("./Permission");
 
 const SALT_ROUNDS = 10;
 
@@ -53,7 +54,7 @@ const User = sequelize.define("User", {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'permissions',
+            model: Permission,
             key: 'PermissionId'
         }
     },
@@ -74,5 +75,8 @@ const User = sequelize.define("User", {
         }
     }
 })
+
+Permission.hasMany(User, {foreignKey: 'PermissionId'});
+User.belongsTo(Permission, {foreignKey: 'PermissionId'});
 
 module.exports = User;
