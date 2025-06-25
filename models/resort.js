@@ -8,12 +8,12 @@ const Resort = sequelize.define('Resort',{
         autoIncrement: true
     },
     name:{
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: false,
         unique: true
     },
     location:{
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false
     },
 },{
