@@ -1,8 +1,8 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/db');
 
-const Resort = sequelize.define('Resorts',{
-    id:{
+const Resort = sequelize.define('Resort', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -17,7 +17,8 @@ const Resort = sequelize.define('Resorts',{
         allowNull: false
     },
 },{
-    timestamps: true
+    timestamps: true,
+    underscored: true
 });
 
 module.exports = Resort;
