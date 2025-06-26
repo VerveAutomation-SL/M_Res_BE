@@ -2,7 +2,7 @@ const {DataTypes} = require('sequelize');
 const sequelize = require('../config/db');
 const Resort = require('./resort');
 
-const Room = sequelize.define('Rooms',{
+const Room = sequelize.define('Room',{
     id :{
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -26,7 +26,8 @@ const Room = sequelize.define('Rooms',{
         }
     }
 },{
-    timestamps:true
+    timestamps:true,
+    underscored: true
 });
 
 Resort.hasMany(Room, {

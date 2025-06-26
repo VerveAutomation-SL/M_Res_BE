@@ -12,6 +12,7 @@ app.use(cors());
 
 // Routes
 app.use('/resorts', require('./routes/resortRoutes'));
+app.use('/rooms', require('./routes/roomRoutes'));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
