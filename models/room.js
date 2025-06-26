@@ -1,8 +1,8 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/db');
-const Resort = require('../models/resort');
+const Resort = require('./resort');
 
-const Room = sequelize.define('Room',{
+const Room = sequelize.define('Rooms',{
     id :{
         type: DataTypes.INTEGER,
         primaryKey: true,
