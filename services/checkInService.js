@@ -2,7 +2,6 @@ const CheckIn = require('../models/checkin');
 const Resort = require('../models/resort');
 
 // Meal time periods
-
 const MEAL_TIMES ={
     breakfast: { start: '06:00:00', end: '10:00:00' },
     lunch: { start: '12:00:00', end: '15:00:00' },
@@ -82,7 +81,7 @@ const createCheckIn = async(checkInData) => {
         });
     } catch (error) {
         console.error('Error creating check-in:', error);
-        throw new Error('Could not create check-in');
+        throw error;
     }
     
 };

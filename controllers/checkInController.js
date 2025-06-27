@@ -70,7 +70,7 @@ const processCheckIn = async (req,res) =>{
             });
         }
 
-        if(error.message.includes('not available at this time ')){
+        if(error.message.includes('not available at this time')){
             return res.status(400).json({
                 success: false,
                 message: error.message
