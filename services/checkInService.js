@@ -59,6 +59,11 @@ const createCheckIn = async(checkInData) => {
         const now = new Date();
         const currentTime = now.toTimeString().split(' ')[0]; // Get current time in HH:MM:SS format
 
+        const resort = await Resort.findByPk(resort_id);
+        if (!resort) {
+            throw new Error(`Resort with ID ${resort_id} not found`);
+        }
+        
         const alreadyCheckedIn = await hasCheckedInForMeal(room_number, meal_type, check_in_date);
         if (alreadyCheckedIn) {
             throw new Error('Guest has already checked in for this meal');
@@ -75,7 +80,6 @@ const createCheckIn = async(checkInData) => {
             room_number,
             outlet_name,
             meal_type,
-            guest_name,
             check_in_date: check_in_date || now.toISOString().split('T')[0], // Default to today if not provided
             check_in_time: check_in_time || currentTime // Default to current time if not provided
         });

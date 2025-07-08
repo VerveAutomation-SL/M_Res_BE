@@ -9,10 +9,6 @@ const CheckIn = sequelize.define('CheckIn', {
     primaryKey: true,
     autoIncrement: true
   },
-  guest_name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   room_number:{
     type: DataTypes.STRING,
     allowNull: false,

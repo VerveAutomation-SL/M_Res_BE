@@ -63,6 +63,13 @@ const processCheckIn = async (req,res) =>{
             data: checkin
         });
     } catch (error) {
+        if(error.message.includes('Resort with ID')) {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+        
         if(error.message.includes('already checked in')){
             return res.status(400).json({
                 success: false,
