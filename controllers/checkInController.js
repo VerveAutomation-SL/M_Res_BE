@@ -12,6 +12,13 @@ const getAllCheckIns = async (req, res) => {
                 message: 'Resort ID is required'
             });
         }
+        if(resortId === undefined){
+            return res.status(200).json({
+                success: true,
+                count: checkIns.length,
+                data: checkIns
+            });
+        }
 
         const checkIns = await checkInService.getCheckins(resortId, date ? new Date(date) : new Date());
 
@@ -69,7 +76,7 @@ const processCheckIn = async (req,res) =>{
                 message: error.message
             });
         }
-        
+
         if(error.message.includes('already checked in')){
             return res.status(400).json({
                 success: false,
@@ -91,12 +98,40 @@ const processCheckIn = async (req,res) =>{
             err: error.message
         });
     }
+};
+
+const getRoomCheckInStatus = async (req, res) => {
+    try{
+        const {resortId, mealType} = req.query;
+        console.log('Resort ID:', resortId, 'Meal Type:', mealType);
+        if(!resortId || !mealType){
+            return res.status(400).json({
+                success: false,
+                message: 'resortId and mealType are required'
+            });
+        }
+
+        const roomCheckInStatus = await checkInService.getRoomCheckInStatus(Number(resortId), mealType);
+        return res.status(200).json({
+            success: true,
+            data: roomCheckInStatus
+        });
+    } catch (error) {
+        console.error('Error fetching room check-in status:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Could not fetch room check-in status',
+            err: error.message
+        });
+    }
 }
+
 
 
 module.exports = {
     getAllCheckIns,
-    processCheckIn
+    processCheckIn,
+    getRoomCheckInStatus
 };
 
 

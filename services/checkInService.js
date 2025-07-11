@@ -1,11 +1,12 @@
 const CheckIn = require('../models/checkin');
 const Resort = require('../models/resort');
+const Room = require('../models/room');
 
 // Meal time periods
 const MEAL_TIMES ={
-    breakfast: { start: '06:00:00', end: '10:00:00' },
-    lunch: { start: '12:00:00', end: '15:00:00' },
-    dinner: { start: '19:00:00', end: '22:00:00' }
+    breakfast: { start: '06:00:00', end: '11:00:00' },
+    lunch: { start: '12:00:00', end: '14:00:00' },
+    dinner: { start: '19:00:00', end: '23:30:00' }
 };
 
 // Get all check-ins for a resort
@@ -32,7 +33,7 @@ const getCheckins = async(resortId, date = new Date()) => {
 };
 
 // Check if guest has already checked in for a meal
-const hasCheckedInForMeal = async(roomNumber, mealType, date = new Date()) => {
+const hasCheckedInForMeal = async(roomNumber, mealType,date = new Date()) => {
     try{
         const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
 
@@ -54,7 +55,7 @@ const hasCheckedInForMeal = async(roomNumber, mealType, date = new Date()) => {
 // Process a new check-in
 const createCheckIn = async(checkInData) => {
     try{
-        const { resort_id, room_number, outlet_name, meal_type, check_in_date, check_in_time, guest_name } = checkInData;
+        const { resort_id, room_number, outlet_name, meal_type, check_in_date, check_in_time} = checkInData;
 
         const now = new Date();
         const currentTime = now.toTimeString().split(' ')[0]; // Get current time in HH:MM:SS format
@@ -63,8 +64,8 @@ const createCheckIn = async(checkInData) => {
         if (!resort) {
             throw new Error(`Resort with ID ${resort_id} not found`);
         }
-        
-        const alreadyCheckedIn = await hasCheckedInForMeal(room_number, meal_type, check_in_date);
+
+        const alreadyCheckedIn = await hasCheckedInForMeal(room_number, meal_type,check_in_date);
         if (alreadyCheckedIn) {
             throw new Error('Guest has already checked in for this meal');
         }
@@ -90,9 +91,36 @@ const createCheckIn = async(checkInData) => {
     
 };
 
+// Get check-ins for a specific resort in a specific time period
+const getRoomCheckInStatus = async(resortId , mealType) => {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
+
+    const rooms = await Room.findAll({
+        where : {resort_id:resortId}
+    });
+
+    const checkIns = await CheckIn.findAll({
+        where:{
+            resort_id: resortId,
+            meal_type: mealType,
+            check_in_date: today
+        }
+    });
+
+    console.log(checkIns, rooms);
+
+    const checkedInRoomNumbers = checkIns.map(checkIn => checkIn.room_number);
+    return rooms.map(room => ({
+        room_number: room.room_number,
+        checked_in: checkedInRoomNumbers.includes(room.room_number)
+    }));
+}
+
 
 module.exports = {
     getCheckins,
+    getRoomCheckInStatus,
     hasCheckedInForMeal,
     createCheckIn
 };
