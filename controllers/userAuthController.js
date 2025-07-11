@@ -12,12 +12,14 @@ const loginController = async (req, res) => {
 
     try {
         const { tokens, user } = await loginService({ userName, password, role });
-        res.status(200).json({ 
-            success: true, 
-            message: `${role} Login successful`,
-            tokens,
-            user 
-        });
+        res
+            .cookie("refreshToken", tokens.refreshToken, { httpOnly: true, secure: true, sameSite: "Strict" })
+            .status(200).json({ 
+                success: true, 
+                message: `${role} Login successful`,
+                accessToken: tokens.accessToken,
+                user 
+            });
     } catch (error) {
         res.status(error.statusCode || 500).json({ 
             success: false, 
