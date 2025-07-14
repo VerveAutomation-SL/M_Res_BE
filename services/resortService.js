@@ -1,4 +1,5 @@
 const Resort = require('../models/resort');
+const Room = require('../models/room');
 
 // Get all resorts
 const getAllResorts = async() =>{
@@ -20,8 +21,30 @@ const createResort = async(resortData)=>{
     }
 }
 
+// get resort by ID
+const getResortById = async(resortId) => {
+    try {
+        return await Resort.findByPk(resortId);
+    } catch (err) {
+        console.error('Error fetching resort by ID:', err);
+        throw new Error('Could not fetch resort by ID');
+    }
+}
+
+// get room for a specific resort
+const getRoomByResortId = async(resortId) => {
+    try {
+        return await Room.findAll({ where: { resort_id: resortId } });
+    } catch (err) {
+        console.error('Error fetching rooms by resort ID:', err);
+        throw new Error('Could not fetch rooms by resort ID');
+    }
+}
+
 
 module.exports ={
     getAllResorts,
-    createResort
+    createResort,
+    getResortById,
+    getRoomByResortId
 };

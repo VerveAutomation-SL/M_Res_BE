@@ -20,6 +20,16 @@ const createRoom = async(roomData)=>{
     }
 }
 
+// // get room for a specific resort
+// const getRoomByResortId = async(resortId) => {
+//     try {
+//         return await Room.findAll({ where: { resort_id: resortId } });
+//     } catch (err) {
+//         console.error('Error fetching rooms by resort ID:', err);
+//         throw new Error('Could not fetch rooms by resort ID');
+//     }
+// }
+
 module.exports = {
     getAllRooms,
     createRoom

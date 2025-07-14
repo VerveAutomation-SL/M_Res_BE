@@ -12,13 +12,13 @@ const getAllCheckIns = async (req, res) => {
                 message: 'Resort ID is required'
             });
         }
-        if(resortId === undefined){
-            return res.status(200).json({
-                success: true,
-                count: checkIns.length,
-                data: checkIns
-            });
-        }
+        // if(resortId === undefined){
+        //     return res.status(200).json({
+        //         success: true,
+        //         count: checkIns.length,
+        //         data: checkIns
+        //     });
+        // }
 
         const checkIns = await checkInService.getCheckins(resortId, date ? new Date(date) : new Date());
 
@@ -62,6 +62,15 @@ const processCheckIn = async (req,res) =>{
             });
         }
 
+        // Check if we're within the meal time period
+        if(!checkInService.isWithinMealTime(checkInData.meal_type)){
+            const mealPeriod = checkInService.MEAL_TIMES[checkInData.meal_type];
+            return res.status(400).json({
+                success: false,
+                message: `Check-in for ${checkInData.meal_type} is only available between ${mealPeriod.start} and ${mealPeriod.end}`
+            });
+        }
+
         const checkin = await checkInService.createCheckIn(checkInData);
 
         return res.status(201).json({
@@ -70,6 +79,8 @@ const processCheckIn = async (req,res) =>{
             data: checkin
         });
     } catch (error) {
+        console.error('Error processing check-in:', error);
+
         if(error.message.includes('Resort with ID')) {
             return res.status(404).json({
                 success: false,
@@ -91,7 +102,6 @@ const processCheckIn = async (req,res) =>{
             });
         }
 
-        console.error('Error processing check-in:', error);
         return res.status(500).json({
             success: false,
             message: 'Could not process check-in',
@@ -102,20 +112,25 @@ const processCheckIn = async (req,res) =>{
 
 const getRoomCheckInStatus = async (req, res) => {
     try{
-        const {resortId, mealType} = req.query;
+        const {resortId, mealType,date} = req.query;
+
         console.log('Resort ID:', resortId, 'Meal Type:', mealType);
-        if(!resortId || !mealType){
+
+        if(!resortId || !mealType ){
             return res.status(400).json({
                 success: false,
                 message: 'resortId and mealType are required'
             });
         }
 
-        const roomCheckInStatus = await checkInService.getRoomCheckInStatus(Number(resortId), mealType);
+        const checkDate = date ? new Date(date) : new Date();
+        const roomCheckInStatus = await checkInService.getRoomCheckInStatus(Number(resortId), mealType, checkDate);
+        
         return res.status(200).json({
             success: true,
             data: roomCheckInStatus
         });
+
     } catch (error) {
         console.error('Error fetching room check-in status:', error);
         return res.status(500).json({
@@ -125,8 +140,6 @@ const getRoomCheckInStatus = async (req, res) => {
         });
     }
 }
-
-
 
 module.exports = {
     getAllCheckIns,
