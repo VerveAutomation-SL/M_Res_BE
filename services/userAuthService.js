@@ -11,7 +11,7 @@ const loginService = async ({ userName, password, role }) => {
         // Find Admin by username
         const user = await User.findOne({ where: { username: userName, role: role } });
         if (!user) {
-            throw new AppError(404, `User not found or not an ${role}`);
+            throw new AppError(404, `User not found or not ${(role === "Admin" ? "an Admin" : "a User")}`);
         }
 
         // Verify password

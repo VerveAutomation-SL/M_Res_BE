@@ -13,11 +13,11 @@ const generateTokens = (payload) => {
     return { accessToken, refreshToken };
   };
 
-  const verifyRefreshToken = (token) => {
-    return jwt.verify(token, JWT_REFRESH_TOKEN_SECRET);
+  const verifyAccessToken = (token) => {
+    return jwt.verify(token, JWT_ACCESS_TOKEN_SECRET);
   };
 
 module.exports = {
     generateTokens,
-    verifyRefreshToken
+    verifyAccessToken
 };

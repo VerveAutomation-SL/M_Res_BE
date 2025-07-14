@@ -1,14 +1,14 @@
-const {generateTokens, verifyRefreshToken} = require("../services/tokenService");
+const {generateTokens, verifyAccessToken} = require("../services/tokenService");
 
-const refreshTokenController = (req, res) => {
-    const { refreshToken } = req.body;
+const getTokenController = (req, res) => {
+    const { accesstoken } = req.body;
 
-    if (!refreshToken) {
+    if (!accesstoken) {
         return res.status(401).json({ message: "Refresh token is required" });
     }
 
     try {
-    const decoded = verifyRefreshToken(refreshToken);
+    const decoded = verifyAccessToken(accesstoken);
     const userData = {userId: decoded.UserId, role: decoded.role, username: decoded.username, email: decoded.email}
     const tokens = generateTokens(userData);
 
@@ -18,6 +18,22 @@ const refreshTokenController = (req, res) => {
   }
 }
 
+const verifyAccessTokenController = (req, res) => {
+    user = req.user;
+    res.status(200).json({
+        success: true,
+        message: "Access token is valid",
+        user: {
+            userId: user.UserId,
+            role: user.role,
+            username: user.username,
+            email: user.email
+        }
+    });
+
+}
+
 module.exports = {
-    refreshTokenController
+    getTokenController,
+    verifyAccessTokenController
 };

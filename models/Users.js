@@ -17,13 +17,13 @@ const User = sequelize.define("User", {
         unique: true,
     },
     role: {
-        type: DataTypes.ENUM("Admin", "Host"),
+        type: DataTypes.ENUM("Admin", "User"),
         allowNull: false,
-        defaultValue: "Host",
+        defaultValue: "User",
         validate: {
             isIn: {
-                args: [["Admin", "Host"]],
-                msg: "Role must be either 'Admin' or 'Host'",
+                args: [["Admin", "User"]],
+                msg: "Role must be either 'Admin' or 'User'",
             }
         }
     },

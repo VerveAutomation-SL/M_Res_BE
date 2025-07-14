@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const { refreshTokenController } = require("../controllers/tokenController");
+const { getTokenController, verifyAccessTokenController } = require("../controllers/tokenController");
+const authenticateToken = require("../middleware/authMiddleware");
 
-router.post("/refresh", refreshTokenController)
+router.post("/refresh", getTokenController)
+router.post("/verify", authenticateToken ,verifyAccessTokenController);
 
 module.exports = router;

@@ -13,7 +13,7 @@ const loginController = async (req, res) => {
     try {
         const { tokens, user } = await loginService({ userName, password, role });
         res
-            .cookie("refreshToken", tokens.refreshToken, { httpOnly: true, secure: true, sameSite: "Strict" })
+            .cookie("accessToken", tokens.accessToken, { httpOnly: true, secure: true, sameSite: "Strict" })
             .status(200).json({ 
                 success: true, 
                 message: `${role} Login successful`,
@@ -21,6 +21,7 @@ const loginController = async (req, res) => {
                 user 
             });
     } catch (error) {
+        console.error("Error:", error);
         res.status(error.statusCode || 500).json({ 
             success: false, 
             message: error.message || "Internal Server Error"
