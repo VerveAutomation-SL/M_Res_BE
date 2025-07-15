@@ -3,24 +3,22 @@ const sequelize = require("../config/db");
 const Resort = require("./resort");
 
 const Room = sequelize.define("Room", {
-  roomId: {
+  id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
 
-  resortId: {
+  resort_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: Resort,
-      key: "resortId",
+      key: "id",
     },
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE"
   },
 
-  roomNumber: {
+  room_number: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
@@ -28,40 +26,23 @@ const Room = sequelize.define("Room", {
     }
   },
 
-  type: {
-    type: DataTypes.ENUM("Standard", "Villa"),
-    allowNull: false,
-    defaultValue: "Standard",
-    validate: {
-        isIn: {
-            args: [["Standard", "Deluxe", "Suite", "Villa"]],
-            msg: "Type must be one of Standard, Deluxe, Suite, or Villa"
-        }
-    }
-  },
-  isAvailable: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: "Available",
-    validate: {
-      isIn: {
-        args: [["Available", "Occupied"]],
-        msg: "Status must be one of Available or Occupied"
-      }
-    }
-  },
-
 }, {
   timestamps: true,
-  tableName: "rooms"
+  tableName: "rooms",
+  underscored: true,
+
 });
 
 // Associations
 Resort.hasMany(Room, {
-  foreignKey: "resortId",
+  foreignKey: "resort_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
 });
 Room.belongsTo(Resort, {
-  foreignKey: "resortId",
+  foreignKey: "resort_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
 });
 
 module.exports = Room;

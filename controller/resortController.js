@@ -19,17 +19,17 @@ const getAllResortsController = async (req, res) => {
 
 const createResortController = async (req, res) => {
     try {
-        const {resortNumber, resortName, location, totalRooms } = req.body;
+        const {name, location } = req.body;
 
         // Validate required fields
-        if (!resortNumber || !resortName || !location || !totalRooms) {
+        if ( !resortName || !location) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             });
         }
 
-        const newResort = await createResort({ resortNumber, resortName, location, totalRooms });
+        const newResort = await createResort({ name, location });
         res.status(201).json({
             success: true,
             message: "Resort created successfully",
@@ -46,11 +46,11 @@ const createResortController = async (req, res) => {
 
 const updateResortController = async (req, res) => {
     const resortId = req.params.id;
-    const { resortNumber, resortName, location, totalRooms } = req.body;
+    const { name, location } = req.body;
 
     try {
         // Validate required fields
-        if (!resortNumber || !resortName || !location || !totalRooms) {
+        if (!name || !location) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"

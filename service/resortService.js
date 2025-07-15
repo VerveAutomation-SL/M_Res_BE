@@ -14,11 +14,11 @@ const createResort = async (resortData) => {
     // Validate resortData
     const resort = await Resort.findOne({
         where: {
-            resortNumber: resortData.resortNumber
+            resortId: resortData.resortId
         }
     });
     if (resort) {
-        throw new AppError(409, `Resort with ${resortData.resortNumber} already exists`);
+        throw new AppError(409, `Resort with ${resortData.resortId} already exists`);
     }
     return await Resort.create(resortData);
 };
