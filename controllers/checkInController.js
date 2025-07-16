@@ -43,7 +43,7 @@ const processCheckIn = async (req,res) =>{
         const checkInData = req.body;
 
         // Validate required fields
-        const requiredFields = ['resort_id', 'room_number', 'outlet_name', 'meal_type'];
+        const requiredFields = ['resort_id', 'room_id', 'outlet_name', 'table_number', 'meal_type','meal_plan'];
         for (const field of requiredFields){
             if(!checkInData[field]){
                 return res.status(400).json({
@@ -141,10 +141,44 @@ const getRoomCheckInStatus = async (req, res) => {
     }
 }
 
+// Get check-in details for a specific room and meal type
+const getCheckInDetails = async (req, res) => {
+    try {
+        const { resortId, roomNumber, mealType, date } = req.query;
+
+        if (!resortId || !roomNumber || !mealType) {
+            return res.status(400).json({
+                success: false,
+                message: 'resortId, roomNumber, and mealType are required'
+            });
+        }
+
+        const checkInDetails = await checkInService.getCheckInDetails(
+            Number(resortId),
+            roomNumber,
+            mealType,
+            date ? new Date(date) : new Date()
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: checkInDetails
+        });
+    } catch (error) {
+        console.error('Error fetching check-in details:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Could not fetch check-in details',
+            err: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllCheckIns,
     processCheckIn,
-    getRoomCheckInStatus
+    getRoomCheckInStatus,
+    getCheckInDetails
 };
 
 

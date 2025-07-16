@@ -71,13 +71,13 @@ const getCheckins = async(resortId, date = new Date()) => {
 };
 
 // Check if guest has already checked in for a meal
-const hasCheckedInForMeal = async(roomNumber, mealType,date = new Date()) => {
+const hasCheckedInForMeal = async(roomId, mealType,date = new Date()) => {
     try{
         const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
 
         const checkIn = await CheckIn.findOne({
             where: {
-                room_number: roomNumber,
+                room_id: roomId,
                 meal_type: mealType,
                 check_in_date: formattedDate
             }
@@ -93,7 +93,7 @@ const hasCheckedInForMeal = async(roomNumber, mealType,date = new Date()) => {
 // Process a new check-in
 const createCheckIn = async(checkInData) => {
     try{
-        const { resort_id, room_number, outlet_name, meal_type, check_in_date, check_in_time} = checkInData;
+        const { resort_id, room_id, outlet_name, table_number, meal_type, meal_plan, check_in_date, check_in_time} = checkInData;
 
         const now = new Date();
         const currentTime = now.toTimeString().split(' ')[0]; // Get current time in HH:MM:SS format
@@ -104,7 +104,7 @@ const createCheckIn = async(checkInData) => {
             throw new Error(`Resort with ID ${resort_id} not found`);
         }
 
-        const alreadyCheckedIn = await hasCheckedInForMeal(room_number, meal_type, checkInDate);
+        const alreadyCheckedIn = await hasCheckedInForMeal(room_id, meal_type, checkInDate);
         if (alreadyCheckedIn) {
             throw new Error('Guest has already checked in for this meal');
         }
@@ -122,9 +122,11 @@ const createCheckIn = async(checkInData) => {
         //Create new check-in record
         return await CheckIn.create({
             resort_id,
-            room_number,
+            room_id,
             outlet_name,
+            table_number,
             meal_type,
+            meal_plan,
             check_in_date: checkInDate.toISOString().split('T')[0], // Default to today if not provided
             check_in_time: check_in_time || currentTime // Default to current time if not provided
         });
@@ -149,17 +151,22 @@ const getRoomCheckInStatus = async(resortId , mealType, date = new Date()) => {
                 resort_id: resortId,
                 meal_type: mealType,
                 check_in_date: formattedDate
-            }
+            },
+            include:[{
+                model: Room,
+                attributes: ['room_number']
+            }]
         });
 
         console.log('Check-ins found:', checkIns.length);
         console.log('Rooms found:', rooms.length);
 
-        const checkedInRoomNumbers = new Set(checkIns.map(checkIn => checkIn.room_number));
+        const checkedInRoomIds = new Set(checkIns.map(checkIn => checkIn.room_id));
 
         const roomStatus = rooms.map(room => ({
+            room_id: room.id,
             room_number: room.room_number,
-            checked_in: checkedInRoomNumbers.has(room.room_number),
+            checked_in: checkedInRoomIds.has(room.id),
             resort_id: resortId,
         }));
 
@@ -171,11 +178,36 @@ const getRoomCheckInStatus = async(resortId , mealType, date = new Date()) => {
     }
 };
 
+// Get checkin details 
+const getCheckInDetails = async(resortId, roomId, mealType, date = new Date()) => {
+    try {
+        const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
+
+        const checkIn = await CheckIn.findOne({
+            where: {
+                resort_id: resortId,
+                room_id: roomId,
+                meal_type: mealType,
+                check_in_date: formattedDate
+            }
+        });
+
+        if (!checkIn) {
+            throw new Error('No check-in found for the specified criteria');
+        }
+
+        return checkIn;
+    } catch (error) {
+        console.error('Error fetching check-in details:', error);
+        throw new Error('Could not fetch check-in details');
+    }
+};
 
 module.exports = {
     getCheckins,
     getRoomCheckInStatus,
     hasCheckedInForMeal,
+    getCheckInDetails,
     createCheckIn,
     getCurrentMealType,
     isWithinMealTime,

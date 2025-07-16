@@ -13,10 +13,6 @@ const Room = sequelize.define('Room',{
         allowNull: false,
         unique: true
     },
-    status:{
-        type: DataTypes.ENUM('available', 'occupied'),
-        defaultValue: 'available',
-    },
     resort_id:{
         type: DataTypes.INTEGER,
         allowNull: false,

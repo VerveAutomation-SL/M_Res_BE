@@ -9,12 +9,12 @@ const CheckIn = sequelize.define('CheckIn', {
     primaryKey: true,
     autoIncrement: true
   },
-  room_number:{
-    type: DataTypes.STRING,
+  room_id:{
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: Room,
-      key: 'room_number'
+      key: 'id'
     }
   },
   resort_id:{
@@ -29,8 +29,16 @@ const CheckIn = sequelize.define('CheckIn', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  table_number: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   meal_type: {
     type: DataTypes.ENUM('breakfast', 'lunch', 'dinner'),
+    allowNull: false
+  },
+  meal_plan: {
+    type: DataTypes.ENUM('all-inclusive', 'full-board', 'half-board'),
     allowNull: false
   },
   check_in_date:{
@@ -45,7 +53,7 @@ const CheckIn = sequelize.define('CheckIn', {
     timestamps: true,
     indexes:[
         {
-            fields: ['room_number', 'meal_type', 'check_in_date' , 'check_in_time']
+            fields: ['room_id', 'meal_type', 'check_in_date' , 'check_in_time']
         }
     ]
 });
@@ -60,5 +68,13 @@ CheckIn.belongsTo(Resort, {
   foreignKey: 'resort_id'
 });
 
+CheckIn.belongsTo(Room, {
+  foreignKey: 'room_id'
+});
+
+Room.hasMany(CheckIn, {
+  foreignKey: 'room_id',
+  onDelete: 'CASCADE'
+});
 
 module.exports = CheckIn;

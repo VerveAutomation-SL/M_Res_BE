@@ -8,7 +8,7 @@ router.get('/', roomController.getAllRooms);
 // Add new room
 router.post('/', roomController.createRoom);
 
-// // Get room by resort ID
-// router.get('/resorts/:resortId/rooms', roomController.getRoomByResortId);
+// Get room by ID
+router.get('/:roomId', roomController.getRoomById);
 
 module.exports = router;
