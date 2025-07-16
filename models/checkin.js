@@ -48,12 +48,25 @@ const CheckIn = sequelize.define('CheckIn', {
   check_in_time:{
     type:DataTypes.TIME,
     defaultValue:sequelize.fn('NOW')
-  }
+  },
+  check_out_time: {
+    type: DataTypes.TIME,
+    allowNull: true
+  },
+  checkout_remarks: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  status: {
+    type: DataTypes.ENUM('checked-in', 'checked-out'),
+    defaultValue: 'checked-in',
+    allowNull: false
+  },
 },{
     timestamps: true,
     indexes:[
         {
-            fields: ['room_id', 'meal_type', 'check_in_date' , 'check_in_time']
+            fields: ['room_id', 'meal_type', 'check_in_date' , 'check_in_time', 'status']
         }
     ]
 });

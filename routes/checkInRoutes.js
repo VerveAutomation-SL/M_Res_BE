@@ -14,6 +14,8 @@ router.get('/details', checkInController.getCheckInDetails);
 // Get all check-ins for a resort
 router.get('/:resortId', checkInController.getAllCheckIns);
 
+// Process check-out for a room
+router.post('/check-out', checkInController.checkOutRoom);
 
 
 module.exports = router;
