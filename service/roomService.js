@@ -6,15 +6,15 @@ const createRoom = async (roomData) => {
     // Validate roomData
     const existingRoom = await Room.findOne({
         where: {
-            roomNumber: roomData.roomNumber,
+            room_number: roomData.room_number,
         }
     });
     if (existingRoom) {
-        throw new AppError(409, `Room with number ${roomData.roomNumber} already exists.`);
+        throw new AppError(409, `Room with number ${roomData.room_number} already exists.`);
     }
-    const resort = await Resort.findByPk(roomData.resortId);
+    const resort = await Resort.findByPk(roomData.resort_id);
     if (!resort) {
-        throw new AppError(404, `Resort with ID ${roomData.resortId} not found.`);
+        throw new AppError(404, `Resort with ID ${roomData.resort_id} not found.`);
     }
     return await Room.create(roomData);
 }

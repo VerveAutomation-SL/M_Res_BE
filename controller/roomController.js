@@ -2,17 +2,17 @@ const { createRoom, updateRoom, deleteRoom } = require('../service/roomService')
 
 const createRoomController = async (req, res) => {
     try {
-        const {roomNumber, resortId, roomType} = req.body;
+        const {room_number, resort_id} = req.body;
 
         // Validate required fields
-        if (!roomNumber || !resortId || !roomType) {
+        if (!room_number || !resort_id) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required'
             });
         }
 
-        const newRoom = await createRoom({roomNumber, resortId, roomType});
+        const newRoom = await createRoom({room_number, resort_id});
         res.status(201).json({
             success: true,
             message: 'Room created successfully',
@@ -29,18 +29,18 @@ const createRoomController = async (req, res) => {
 
 const updateRoomController = async (req, res) => {
     const roomId = req.params.id;
-    const { roomNumber, resortId, roomType } = req.body;
+    const { room_number, resort_id} = req.body;
 
     try {
         // Validate required fields
-        if (!roomNumber || !resortId || !roomType) {
+        if (!room_number || !resortId) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required'
             });
         }
 
-        const updatedRoom = await updateRoom(roomId, { roomNumber, resortId, roomType });
+        const updatedRoom = await updateRoom(roomId, { room_number, resort_id });
         res.status(200).json({
             success: true,
             message: 'Room updated successfully',
