@@ -1,16 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const resortController = require('../controllers/resortController');
 
-// Get all resorts
-router.get('/', resortController.getAllResorts);
+const { getAllResorts, createResort, updateResortController, deleteResortController,getRoomByResortId, getResortById } = require('../controller/resortController');
 
-// Add new resort
-router.post('/', resortController.createResort);
+
+router.get('/', getAllResorts);
+router.post('/', createResort);
 // Get rooms by resort ID
-router.get('/:resortId/rooms', resortController.getRoomByResortId );
+router.get('/:resortId/rooms', getRoomByResortId );
 // Get resort by ID
-router.get('/:resortId', resortController.getResortById);
+router.get('/:resortId', getResortById);
+
+router.put('/:id', updateResortController);
+router.delete('/:id', deleteResortController);
+
+
 
 
 
