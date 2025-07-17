@@ -25,18 +25,27 @@ const createResort = async(req,res)=>{
     const resortData = req.body;
 
     try{
+        
+        // Validate required fields
+        if (!resortData.name || !resortData.location) {
+            return res.status(400).json({
+                success: false,
+                message: 'Name and location are required'
+            });
+        }
+
         const newResort = await resortService.createResort(resortData);
 
         return res.status(201).json({
             success: true,
+            message: 'Resort created successfully',
             data: newResort
         });
-    }catch(err){
-        console.error('Error creating resort:', err);
-        return res.status(500).json({
+    }catch(error){
+        console.error('Error creating resort:', error);
+        return res.status(error.statusCode || 500).json({
             success: false,
-            message: 'Could not create resort',
-            err: err.message
+            message: error.message || 'Internal Server Error'
         });
     }
 };
@@ -95,10 +104,60 @@ const getRoomByResortId = async (req, res) => {
     }
 };
 
+// Update a resort
+const updateResort = async (req, res) => {
+    const resortId = req.params.id;
+    const { name, location } = req.body;
+
+    try {
+        // Validate required fields
+        if (!name || !location) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required"
+            });
+        }
+
+        const updatedResort = await resortService.updateResort(resortId, { name, location });
+        res.status(200).json({
+            success: true,
+            message: "Resort updated successfully",
+            data: updatedResort
+        });
+    } catch (error) {
+        console.error("Error updating resort:", error);
+        res.status(error.statusCode || 500).json({ 
+            success: false,
+            message: error.message || "Internal Server Error"
+        });
+    }
+};
+
+// Delete a resort
+const deleteResort = async (req, res) => {
+    const resortId = req.params.id;
+
+    try {
+        const deletedResort = await resortService.deleteResort(resortId);
+        res.status(200).json({
+            success: true,
+            message: "Resort deleted successfully",
+            data: deletedResort
+        });
+    } catch (error) {
+        console.error("Error deleting resort:", error);
+        res.status(error.statusCode || 500).json({ 
+            success: false,
+            message: error.message || "Internal Server Error"
+        });
+    }
+};
+
 module.exports={
     getAllResorts,
     createResort,
     getResortById,
-    getRoomByResortId
-
+    getRoomByResortId,
+    updateResort,
+    deleteResort
 };

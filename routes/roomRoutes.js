@@ -11,4 +11,10 @@ router.post('/', roomController.createRoom);
 // Get room by ID
 router.get('/:roomId', roomController.getRoomById);
 
+// Update a room
+router.put('/:roomId', roomController.updateRoom);
+
+// Delete a room
+router.delete('/:roomId', roomController.deleteRoom);
+
 module.exports = router;

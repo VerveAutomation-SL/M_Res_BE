@@ -1,21 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const resortController = require('../controllers/resortController');
 
-const { getAllResorts, createResort, updateResortController, deleteResortController,getRoomByResortId, getResortById } = require('../controller/resortController');
+// Get all resorts
+router.get('/', resortController.getAllResorts);
 
+// Create a new resort
+router.post('/', resortController.createResort);
 
-router.get('/', getAllResorts);
-router.post('/', createResort);
 // Get rooms by resort ID
-router.get('/:resortId/rooms', getRoomByResortId );
+router.get('/:resortId/rooms', resortController.getRoomByResortId);
+
 // Get resort by ID
-router.get('/:resortId', getResortById);
+router.get('/:resortId', resortController.getResortById);
 
-router.put('/:id', updateResortController);
-router.delete('/:id', deleteResortController);
+// Update a resort
+router.put('/:id', resortController.updateResort);
 
-
-
-
+// Delete a resort
+router.delete('/:id', resortController.deleteResort);
 
 module.exports = router;
