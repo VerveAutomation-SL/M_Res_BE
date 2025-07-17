@@ -1,5 +1,6 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+
+const {DataTypes} = require('sequelize');
+const sequelize = require('../config/db');
 
 const Resort = sequelize.define("Resort", {
   id: {
@@ -9,7 +10,7 @@ const Resort = sequelize.define("Resort", {
   },
 
   name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: false,
     unique: {
       msg: "Resort name must be unique"
@@ -20,7 +21,7 @@ const Resort = sequelize.define("Resort", {
   },
 
   location: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: false,
     validate: {
       notEmpty: { msg: "Location is required" }

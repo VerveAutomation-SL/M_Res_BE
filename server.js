@@ -6,19 +6,21 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
-  credentials: true,
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
 
 // Routes
 app.use("/resorts", require("./routes/resortRoutes"));
 app.use("/rooms", require("./routes/roomRouter"));
+app.use('/checkins', require('./routes/checkInRoutes'));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

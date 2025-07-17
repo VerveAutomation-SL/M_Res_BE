@@ -1,3 +1,4 @@
+
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Resort = require("./resort");
@@ -21,6 +22,7 @@ const Room = sequelize.define("Room", {
   room_number: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
     validate: {
       notEmpty: { msg: "Room number is required" }
     }
@@ -36,13 +38,10 @@ const Room = sequelize.define("Room", {
 // Associations
 Resort.hasMany(Room, {
   foreignKey: "resort_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
+  onDelete: "CASCADE"
 });
 Room.belongsTo(Resort, {
-  foreignKey: "resort_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
+  foreignKey: "resort_id"
 });
 
 module.exports = Room;
