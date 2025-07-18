@@ -1,5 +1,24 @@
 const checkInService = require('../services/checkInService');
 
+const getCheckInsinResortController = async (req, res) => {
+    try {
+        const checkIns = await checkInService.getCheckInsinResort();
+
+        return res.status(200).json({
+            success: true,
+            count: checkIns.length,
+            data: checkIns
+        });
+    } catch (error) {
+        console.error('Error fetching check-ins:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Could not fetch check-ins',
+            err: error.message
+        });
+    }
+}
+
 // Get all check-ins for a resort
 const getAllCheckIns = async (req, res) => {
     try{
@@ -178,7 +197,8 @@ module.exports = {
     getAllCheckIns,
     processCheckIn,
     getRoomCheckInStatus,
-    getCheckInDetails
+    getCheckInDetails,
+    getCheckInsinResortController
 };
 
 

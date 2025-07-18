@@ -1,0 +1,37 @@
+<!-- templates/report-template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+    th, td {
+      border: 1px solid #1f4e78;
+      padding: 8px;
+    }
+    th {
+      background-color: #1f4e78;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Check-in Report</h2>
+  <table>
+    <thead>
+      <tr>{{TABLE_HEADERS}}</tr>
+    </thead>
+    <tbody>
+      {{TABLE_ROWS}}
+    </tbody>
+  </table>
+</body>
+</html>

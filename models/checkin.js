@@ -2,6 +2,7 @@ const {DataTypes} = require('sequelize');
 const sequelize = require('../config/db');
 const Resort = require('./resort');
 const Room = require('./room');
+const { checkout } = require('../routes/resortRoutes');
 
 const CheckIn = sequelize.define('CheckIn', {
   id: {
@@ -46,9 +47,22 @@ const CheckIn = sequelize.define('CheckIn', {
     defaultValue: DataTypes.NOW
   },
   check_in_time:{
-    type:DataTypes.TIME,
+    type: DataTypes.TIME,
     defaultValue:sequelize.fn('NOW')
-  }
+  },
+  check_out_time: {
+    type: DataTypes.TIME,
+    allowNull: true
+  },
+  status: {
+    type: DataTypes.ENUM('checked-in', 'checked-out'),
+    defaultValue: 'checked-in',
+    allowNull: false
+  },
+  checkout_remarks: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
 },{
     timestamps: true,
     indexes:[
