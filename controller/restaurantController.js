@@ -1,3 +1,4 @@
+const Resort = require('../model/resort');
 const { getAllRestaurants, getRestaurantById, createRestaurant, updateRestaurant, deleteRestaurant } = require('../service/restaurantService');
 
 const getAllRestaurantscontroller = async (req, res) => {
@@ -21,7 +22,7 @@ const getAllRestaurantscontroller = async (req, res) => {
 const getRestaurantByIdController = async (req, res) => {
     const { id } = req.params;
     try {
-        const restaurant = await getRestaurantById(id); // use PK not RestaurantNumber
+        const restaurant = await getRestaurantById(id); // use PK
         res.status(200).json({
             success: true,
             message: 'Restaurant retrieved successfully',
@@ -37,17 +38,26 @@ const getRestaurantByIdController = async (req, res) => {
 }
 
 const createRestaurantController = async (req, res) => {
-    const { restaurantNumber, restaurantName } = req.body;
+    const { resort_id, restaurantName } = req.body;
 
-    if (!restaurantNumber || !restaurantName) {
+    if (!restaurantName || !resort_id) {
         return res.status(400).json({
             success: false,
-            message: 'Restaurant number and name are required'
+            message: 'Restaurant name and resort ID are required'
+        });
+    }
+
+    // Check if resort exists
+    const resort = await Resort.findByPk(resort_id);
+    if (!resort) {
+        return res.status(404).json({
+            success: false,
+            message: 'Resort not found'
         });
     }
 
     try {
-        const newRestaurant = await createRestaurant({restaurantNumber, restaurantName});
+        const newRestaurant = await createRestaurant({restaurantName, resort_id});
         res.status(201).json({
             success: true,
             message: 'Restaurant created successfully',
@@ -64,9 +74,9 @@ const createRestaurantController = async (req, res) => {
 
 const updateRestaurantController = async (req, res) => {
     const { id } = req.params; // id means PK
-    const { restaurantNumber, restaurantName } = req.body; // ansure to send the whole object in frontend - updated feilds and others
+    const { restaurantName, resort_id } = req.body; // ansure to send the whole object in frontend - updated feilds and others
 
-    if (!restaurantNumber || !restaurantName) {
+    if (!restaurantName) {
         return res.status(400).json({
             success: false,
             message: 'Restaurant number and name are required'
@@ -74,7 +84,7 @@ const updateRestaurantController = async (req, res) => {
     }
 
     try {
-        const updatedRestaurant = await updateRestaurant(id, {restaurantNumber, restaurantName});
+        const updatedRestaurant = await updateRestaurant(id, {restaurantName, resort_id});
         res.status(200).json({
             success: true,
             message: 'Restaurant updated successfully',

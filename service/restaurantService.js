@@ -24,24 +24,31 @@ const getRestaurantById = async (id) => {
     return restaurant;
 }
 
-const createRestaurant = async ({restaurantNumber, restaurantName}) => {
+const createRestaurant = async ({restaurantName, resort_id}) => {
     const existingRestaurant = await Restaurant.findOne({ 
         where: { 
-            restaurantNumber : restaurantNumber, 
+            restaurantName : restaurantName, 
+            resort_id: resort_id
         }});
     if (existingRestaurant) {
-        throw new AppError(400, `Restaurant with number- ${restaurantNumber} already exists`);
+        throw new AppError(400, `Restaurant with name- ${restaurantName} already exists`);
     }
-    const restaurant = await Restaurant.create({restaurantNumber, restaurantName})
+    const restaurant = await Restaurant.create({restaurantName, resort_id})
     return restaurant;
 };
 
-const updateRestaurant = async (id, {restaurantNumber, restaurantName}) => {
+const updateRestaurant = async (id, {restaurantName, resort_id}) => {
     const restaurant = await getRestaurantById(id);
     if (!restaurant) {
         throw new AppError(404, 'Restaurant not found');
     }
-    await restaurant.update({restaurantNumber, restaurantName});
+
+    const resort = await Restaurant.findOne({ where: { resort_id } });
+    if (!resort) {
+        throw new AppError(404, 'Resort not found');
+    }
+    
+    await restaurant.update({restaurantName, resort_id});
     return restaurant;
 }
 
