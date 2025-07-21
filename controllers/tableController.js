@@ -1,4 +1,4 @@
-const {getAllTables, getTableById, createTable, updateTable, deleteTable} = require('../service/tableService');
+const {getAllTables, getTableById, createTable, updateTable, deleteTable} = require('../services/tableService');
 
 const getAllTablesController = async (req, res) => {
     try {

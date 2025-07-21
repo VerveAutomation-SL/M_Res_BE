@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const sequelize = require("./config/db");
-const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -19,8 +18,8 @@ app.use(cors({
 }));
 
 // Routes
-app.use("/restaurant", require("./routes/restaurantRoutes"));
-app.use("/table", require("./routes/tableRoutes"));
+app.use("/restaurants", require("./routes/restaurantRoutes"));
+app.use("/tables", require("./routes/tableRoutes"));
 app.use("/resorts", require("./routes/resortRoutes"));
 app.use("/rooms", require("./routes/roomRoutes"));
 app.use('/checkins', require('./routes/checkInRoutes'));

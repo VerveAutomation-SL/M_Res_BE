@@ -1,6 +1,6 @@
-const AppError = require('../util/AppError');
-const Restaurant = require('../model/restaurant');
-const Table = require('../model/table');
+const AppError = require('../utils/AppError');
+const Restaurant = require('../models/restaurant');
+const Table = require('../models/table');
 
 const getAllTables = async () => {
     return await Table.findAll();
