@@ -40,14 +40,16 @@ const Restaurant = sequelize.define('Restaurant', {
     timestamps: true,
 });
 
-Restaurant.hasMany(Resort, {
+Resort.hasMany(Restaurant, {
     foreignKey: "resort_id",
+    as: "restaurants",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
 });
 
-Resort.belongsTo(Restaurant, {
+Restaurant.belongsTo(Resort, {
     foreignKey: "resort_id",
+    as: "resort",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   });

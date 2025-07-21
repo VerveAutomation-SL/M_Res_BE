@@ -1,14 +1,22 @@
 const AppError = require('../util/AppError');
 const Restaurant = require('../model/restaurant');
 const DiningTable = require('../model/table');
+const Resort = require('../model/resort');
 
 const getAllRestaurants = async () => {
     return await Restaurant.findAll({
-        include: [{
-            model: DiningTable,
-            as: "diningTables"
-        }]
-    })
+        include: [
+            {
+                model: DiningTable,
+                as: "diningTables",
+            },
+            {
+                model: Resort,
+                as: "resort",
+                attributes: ['id', 'name', 'location'],
+            },
+        ],
+    });
 }
 
 const getRestaurantById = async (id) => {
@@ -47,7 +55,7 @@ const updateRestaurant = async (id, {restaurantName, resort_id}) => {
     if (!resort) {
         throw new AppError(404, 'Resort not found');
     }
-    
+
     await restaurant.update({restaurantName, resort_id});
     return restaurant;
 }
