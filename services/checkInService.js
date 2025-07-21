@@ -1,6 +1,7 @@
 const CheckIn = require('../models/checkin');
 const Resort = require('../models/resort');
 const Room = require('../models/room');
+const {Op} = require('sequelize');
 
 // Meal time periods
 const MEAL_TIMES ={
@@ -181,6 +182,42 @@ const getRoomCheckInStatus = async(resortId , mealType, date = new Date()) => {
     }
 };
 
+// Get check-ins today
+const getTodayCheckIns = async (resortId, date = new Date()) => {
+    try{
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const checkIns = await CheckIn.findAll({
+            where:{
+                resort_id: resortId,
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            },
+            include: [
+                {
+                    model: Room,
+                    attributes: ['room_number']
+                },
+                {
+                    model: Resort,
+                    attributes: ['name']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        return checkIns;
+    }catch (error) {
+        console.error('Error fetching today\'s check-ins:', error);
+        throw new Error('Could not fetch today\'s check-ins');
+    }
+};
+
 // Get checkin details 
 const getCheckInDetails = async(resortId, roomId, mealType, date = new Date()) => {
     try {
@@ -263,5 +300,6 @@ module.exports = {
     getCurrentMealType,
     isWithinMealTime,
     checkOutRoom,
+    getTodayCheckIns,
     MEAL_TIMES
 };

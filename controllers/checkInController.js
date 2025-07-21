@@ -209,13 +209,45 @@ const checkOutRoom = async (req, res) => {
     }
 }
 
+// get check-ins for today 
+const getTodayCheckIns = async (req, res) => {
+    try {
+        const { resortId, date } = req.query;
+
+        if (!resortId) {
+            return res.status(400).json({
+                success: false,
+                message: 'resortId is required'
+            });
+        }
+
+        const checkDate = date ? new Date(date) : new Date();
+        const checkIns = await checkInService.getTodayCheckIns(Number(resortId), checkDate);
+
+        return res.status(200).json({
+            success: true,
+            count: checkIns.length,
+            data: checkIns,
+            message: `Found ${checkIns.length} check-ins for ${checkDate.toDateString()}`
+        });
+
+    } catch (error) {
+        console.error('Error fetching today\'s check-ins:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Could not fetch today\'s check-ins',
+            err: error.message
+        });
+    }
+}
 
 module.exports = {
     getAllCheckIns,
     processCheckIn,
     getRoomCheckInStatus,
     getCheckInDetails,
-    checkOutRoom
+    checkOutRoom,
+    getTodayCheckIns
 };
 
 
