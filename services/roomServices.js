@@ -1,4 +1,5 @@
 const Room = require('../models/room');
+const Resort = require('../models/resort');
 const AppError = require('../utils/AppError');
 
 // Get all rooms
@@ -14,20 +15,22 @@ const getAllRooms = async() =>{
 // Add new room
 const createRoom = async(roomData)=>{
     // Validate roomData
-    const resortId = await Resort.findByPk(roomData.resort_id);
-    if (!resortId) {
+    const resort = await Resort.findByPk(roomData.resort_id);
+    if (!resort) {
         throw new AppError(404, `Resort with ID ${roomData.resort_id} not found.`);
     }
+
+    console.log('Resort found:', resort.name);
 
     // Check if room already exists
     const existingRoom = await Room.findOne({
         where: {
             room_number: roomData.room_number,
-            resort_id: resortId
+            resort_id: roomData.resort_id
         }
     });
     if (existingRoom) {
-        throw new AppError(409, `Room with number ${roomData.room_number} already exists in resort ${resortId}.`);
+        throw new AppError(409, `Room with number ${roomData.room_number} already exists in resort ${resort.name}.`);
     }
 
     return await Room.create(roomData);

@@ -21,9 +21,9 @@ const getAllRooms = async (req, res) => {
 
 // Add new room
 const createRoom = async (req, res) => {
-    const roomData = req.body;
-
     try{
+        const { room_number, resort_id } = req.body;
+
         // Validate required fields
         if (!room_number || !resort_id) {
             return res.status(400).json({
@@ -32,7 +32,21 @@ const createRoom = async (req, res) => {
             });
         }
 
-        const newRoom = await roomServices.createRoom(roomData);
+        if (!room_number.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Room number cannot be empty'
+            });
+        }
+
+        if (isNaN(resort_id) || resort_id <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid resort ID is required'
+            });
+        }
+
+        const newRoom = await roomServices.createRoom({ room_number, resort_id });
         return res.status(201).json({
             success: true,
             message: 'Room created successfully',
@@ -76,18 +90,21 @@ const getRoomById = async (req, res) => {
 
 // Update a room
 const updateRoom = async (req, res) => {
-    const roomId = req.params.id;
+    const roomId = req.params.roomId;
     const { room_number, resort_id} = req.body;
+    console.log('Updating room:', roomId);
+    console.log('Room data:', req.body);
 
     try {
         // Validate required fields
-        if (!room_number || !resortId) {
+        if (!room_number || !resort_id) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required'
             });
         }
 
+        console.log('Updating room:', roomId);
         const updatedRoom = await roomServices.updateRoom(roomId, { room_number, resort_id });
         res.status(200).json({
             success: true,
@@ -105,7 +122,7 @@ const updateRoom = async (req, res) => {
 
 // Delete a room
 const deleteRoom = async (req, res) => {
-    const roomId = req.params.id;
+    const roomId = req.params.roomId;
 
     try {
         const deletedRoom = await roomServices.deleteRoom(roomId);

@@ -3,7 +3,7 @@ const sequelize = require('../config/db');
 const Resort = require('./resort');
 const Room = require('./room');
 
-const CheckIn = sequelize.define('CheckIn', {
+const CheckIn = sequelize.define('CheckIns', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -76,6 +76,10 @@ Resort.hasMany(CheckIn, {
   onDelete: 'CASCADE'
 });
 
+Room.hasMany(CheckIn, {
+  foreignKey: 'room_id',
+  onDelete: 'CASCADE'
+});
 
 CheckIn.belongsTo(Resort, {
   foreignKey: 'resort_id'
@@ -83,11 +87,6 @@ CheckIn.belongsTo(Resort, {
 
 CheckIn.belongsTo(Room, {
   foreignKey: 'room_id'
-});
-
-Room.hasMany(CheckIn, {
-  foreignKey: 'room_id',
-  onDelete: 'CASCADE'
 });
 
 module.exports = CheckIn;
