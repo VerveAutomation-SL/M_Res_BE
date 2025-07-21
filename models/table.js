@@ -1,6 +1,6 @@
 const sequelize = require('../config/db');
 const { DataTypes } = require("sequelize");
-const Restaurant = require("./restaurant");
+const Restaurant = require("../models/restaurant");
 
 const DiningTable = sequelize.define('DiningTable', {
     id: {

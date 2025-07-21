@@ -1,7 +1,7 @@
-const AppError = require('../util/AppError');
-const Restaurant = require('../model/restaurant');
-const DiningTable = require('../model/table');
-const Resort = require('../model/resort');
+const AppError = require('../utils/AppError');
+const Restaurant = require('../models/restaurant');
+const DiningTable = require('../models/table');
+const Resort = require('../models/resort');
 
 const getAllRestaurants = async () => {
     return await Restaurant.findAll({

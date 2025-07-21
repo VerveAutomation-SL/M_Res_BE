@@ -1,5 +1,5 @@
-const Resort = require('../model/resort');
-const { getAllRestaurants, getRestaurantById, createRestaurant, updateRestaurant, deleteRestaurant } = require('../service/restaurantService');
+const Resort = require('../models/resort');
+const { getAllRestaurants, getRestaurantById, createRestaurant, updateRestaurant, deleteRestaurant } = require('../services/restaurantService');
 
 const getAllRestaurantscontroller = async (req, res) => {
     try {

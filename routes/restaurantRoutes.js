@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {getAllRestaurantscontroller, getRestaurantByIdController, createRestaurantController, updateRestaurantController, deleteRestaurantController, } = require('../controller/restaurantController');
+const {getAllRestaurantscontroller, getRestaurantByIdController, createRestaurantController, updateRestaurantController, deleteRestaurantController, } = require('../controllers/restaurantController');
 
 router.get('/', getAllRestaurantscontroller);
 router.get('/:id', getRestaurantByIdController);
