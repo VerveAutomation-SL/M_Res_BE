@@ -68,10 +68,24 @@ const deleteRestaurant = async (id) => {
     await restaurant.destroy();
 }
 
+const changeState = async (id) => {
+    const restaurant = await getRestaurantById(id);
+        if (!restaurant) {
+            return res.status(404).json({
+                success: false,
+                message: 'Restaurant not found'
+            });
+        }
+        const status = restaurant.status === 'Open' ? 'Close' : 'Open';
+        console.log(`Changing status of restaurant ${restaurant.restaurantName} to ${status}`);
+        return await restaurant.update({ status });
+}
+
 module.exports = {
     getAllRestaurants,
     getRestaurantById,
     createRestaurant,
     updateRestaurant,
-    deleteRestaurant
+    deleteRestaurant,
+    changeState
 };

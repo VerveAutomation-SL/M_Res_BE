@@ -34,6 +34,17 @@ const Restaurant = sequelize.define('Restaurant', {
             },
         }
     },
+    status: {
+        type: DataTypes.ENUM('Open', 'Close'),
+        allowNull: false,
+        defaultValue: 'Open',
+        validate: {
+            isIn: {
+                args: [['Open', 'Close']],
+                msg: 'Status must be either Open or Close'
+            }
+        }
+    },
 },
 {
     tableName: 'restaurant',

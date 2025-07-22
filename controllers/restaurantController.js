@@ -1,5 +1,5 @@
 const Resort = require('../models/resort');
-const { getAllRestaurants, getRestaurantById, createRestaurant, updateRestaurant, deleteRestaurant } = require('../services/restaurantService');
+const { getAllRestaurants, getRestaurantById, createRestaurant, updateRestaurant, deleteRestaurant, changeState } = require('../services/restaurantService');
 
 const getAllRestaurantscontroller = async (req, res) => {
     try {
@@ -117,10 +117,31 @@ const deleteRestaurantController = async (req, res) => {
     }
 };
 
+const changeStateController = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const restaurant = await changeState(id);
+        res.status(200).json({
+            success: true,
+            message: `${restaurant.restaurantName} status changed successfully to ${restaurant.status}`,
+            data: restaurant
+        });
+        
+    } catch (error) {
+        console.error('Error changing restaurant state:', error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllRestaurantscontroller,
     getRestaurantByIdController,
     createRestaurantController,
     updateRestaurantController,
-    deleteRestaurantController
+    deleteRestaurantController,
+    changeStateController
 }
