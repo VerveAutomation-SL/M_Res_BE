@@ -1,18 +1,29 @@
 const Resort = require('../models/resort');
+const Restaurant = require('../models/restaurant');
 const Room = require('../models/room');
 const AppError = require('../utils/AppError');
 
 // Get all resorts
 const getAllResorts = async() =>{
     try{
-        return await Resort.findAll({
-        include: {
-            model: Room,
-        }
-    });
+        return await Resort.findAll();
     }catch(err){
         console.error('Error fetching resorts:', err);
         throw new Error('Could not fetch resorts');
+    }
+}
+
+const getAllResortsWithRestaurants = async() => {
+    try {
+        return await Resort.findAll({
+            include: [{
+                model: Restaurant,
+                as: 'restaurants'
+            }]
+        });
+    } catch (err) {
+        console.error('Error fetching resorts with restaurants:', err);
+        throw new Error('Could not fetch resorts with restaurants');
     }
 }
 
@@ -75,5 +86,6 @@ module.exports ={
     getResortById,
     getRoomByResortId,
     updateResort,
-    deleteResort
+    deleteResort,
+    getAllResortsWithRestaurants
 };
