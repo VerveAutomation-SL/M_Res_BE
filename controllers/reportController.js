@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const {generateExcelToPDFReportservice, generateExcelReportservice } = require('../services/reportService');
+const {generateExcelToPDFReportservice, generateExcelReportservice,getPreviewDataService } = require('../services/reportService');
 
 const generatePDFReportController = async (req, res) => {
     const { checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status } = req.body || {};
@@ -55,7 +55,29 @@ const generateExcelReportController = async (req, res) => {
     
 }
 
+const getPreviewDataController = async (req, res) => {
+    const { checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status } = req.body || {};
+
+    try {
+        const previewData = await getPreviewDataService({checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status });
+        
+        res.status(200).json({
+            success: true,
+            data: previewData
+        });
+    } catch (error) {
+        console.error('[getPreviewDataController] Error fetching preview data:', error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: 'Failed to fetch preview data',
+            error: error.message,
+            data: []
+        });
+    }
+}
+
 module.exports = {
     generateExcelReportController,
-    generatePDFReportController
+    generatePDFReportController,
+    getPreviewDataController
 };

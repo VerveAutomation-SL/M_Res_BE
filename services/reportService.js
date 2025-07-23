@@ -7,6 +7,42 @@ const { getCheckInsinResort } = require("../services/checkInService");
 const AppError = require("../utils/AppError");
 
 
+const getPreviewDataService = async ({checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status }) => {
+    try {
+        const {where, order} = setFilters({checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status });
+        console.log('Fetching preview data with filters:', where, order);
+
+        // Fetch check-ins data
+        const response = await getCheckInsinResort({where, order});
+        
+        // Map Sequelize model instances to plain objects
+        let checkIns = response.map(checkIn => checkIn.dataValues);
+
+        checkIns = checkIns.map(checkIn => {
+            return {
+                id: checkIn.id,
+                room_number: checkIn.Room ? checkIn.Room.dataValues.room_number : 'N/A',
+                resort_name: checkIn.Resort ? checkIn.Resort.dataValues.name : 'N/A',
+                outlet_name: checkIn.outlet_name,
+                table_number: checkIn.table_number,
+                meal_type: checkIn.meal_type,
+                meal_plan: checkIn.meal_plan,
+                check_in_date: checkIn.check_in_date,
+                check_in_time: checkIn.check_in_time,
+                check_out_time: checkIn.check_out_time || null,
+                status: checkIn.status,
+                checkout_remarks: checkIn.checkout_remarks || null
+            };
+        });
+
+        return checkIns;
+        
+    } catch (error) {
+        console.error("Error in getPreviewDataService:", error);
+        throw new AppError(500, `Failed to fetch preview data: ${error.message}`);
+    }
+};
+
 const generateExcelReportservice = ({checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, table_number, meal_type, room_id, meal_plan, status }) => {
     return new Promise((resolve, reject) => {
         const workbook = new ExcelJS.Workbook();
@@ -228,7 +264,7 @@ const setFilters = ({checkinStartDate, checkinEndDate, checkoutStartDate, checko
     }
 
     if (checkoutStartDate && checkoutEndDate) {
-        where.check_out_date = {
+        where.check_out_time = {
             [Op.between]: [new Date(checkoutStartDate), new Date(checkoutEndDate)],
         };
     }
@@ -241,6 +277,7 @@ const setFilters = ({checkinStartDate, checkinEndDate, checkoutStartDate, checko
 };
 
 module.exports = {
+    getPreviewDataService,
     generateExcelToPDFReportservice,
     generateExcelReportservice,
 };

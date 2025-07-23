@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { generateExcelReportController, generatePDFReportController } = require('../controllers/reportController');
+const { generateExcelReportController, generatePDFReportController, getPreviewDataController } = require('../controllers/reportController');
 
-router.get("/excel", generateExcelReportController);
-router.get("/pdf", generatePDFReportController);
-
+router.post("/excel", generateExcelReportController);
+router.post("/pdf", generatePDFReportController);
+router.post("/preview", getPreviewDataController);
 
 module.exports = router;
