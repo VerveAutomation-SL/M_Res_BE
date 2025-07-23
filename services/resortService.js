@@ -13,6 +13,20 @@ const getAllResorts = async() =>{
     }
 }
 
+const getAllResortsWithRooms = async() => {
+    try {
+        return await Resort.findAll({
+            include: [{
+                model: Room,
+                as: 'Rooms'
+            }]
+        });
+    } catch (err) {
+        console.error('Error fetching resorts with restaurants:', err);
+        throw new Error('Could not fetch resorts with restaurants');
+    }
+}
+
 const getAllResortsWithRestaurants = async() => {
     try {
         return await Resort.findAll({
@@ -87,5 +101,6 @@ module.exports ={
     getRoomByResortId,
     updateResort,
     deleteResort,
-    getAllResortsWithRestaurants
+    getAllResortsWithRestaurants,
+    getAllResortsWithRooms
 };

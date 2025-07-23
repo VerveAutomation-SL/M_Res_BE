@@ -5,6 +5,9 @@ const resortController = require('../controllers/resortController');
 // Get all resorts
 router.get('/', resortController.getAllResorts);
 
+// Get all resorts with rooms
+router.get('/with-rooms', resortController.getAllResortsWithRooms);
+
 // Get all resorts with restaurants
 router.get('/with-restaurants', resortController.getAllResortsWithRestaurants);
 

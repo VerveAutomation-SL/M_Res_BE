@@ -20,6 +20,25 @@ const getAllResorts = async(req,res)=>{
     }
 }
 
+// Get all resorts with rooms
+const getAllResortsWithRooms = async(req, res) => {
+    try {
+        const resorts = await resortService.getAllResortsWithRooms();
+        return res.status(200).json({
+            success: true,
+            count: resorts.length,
+            data: resorts
+        });
+    } catch (err) {
+        console.error('Error fetching resorts with rooms:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Could not fetch resorts with rooms',
+            err: err.message
+        });
+    }
+}
+
 const getAllResortsWithRestaurants = async(req, res) => {
     try {
         const resorts = await resortService.getAllResortsWithRestaurants();
@@ -178,5 +197,6 @@ module.exports={
     getRoomByResortId,
     updateResort,
     deleteResort,
-    getAllResortsWithRestaurants
+    getAllResortsWithRestaurants,
+    getAllResortsWithRooms
 };
