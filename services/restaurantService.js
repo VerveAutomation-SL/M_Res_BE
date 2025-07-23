@@ -45,7 +45,7 @@ const createRestaurant = async ({restaurantName, resort_id}) => {
     return restaurant;
 };
 
-const updateRestaurant = async (id, {restaurantName, resort_id}) => {
+const updateRestaurant = async (id, {restaurantName, resort_id, status}) => {
     const restaurant = await getRestaurantById(id);
     if (!restaurant) {
         throw new AppError(404, 'Restaurant not found');
@@ -56,7 +56,7 @@ const updateRestaurant = async (id, {restaurantName, resort_id}) => {
         throw new AppError(404, 'Resort not found');
     }
 
-    await restaurant.update({restaurantName, resort_id});
+    await restaurant.update({restaurantName, resort_id, status});
     return restaurant;
 }
 
