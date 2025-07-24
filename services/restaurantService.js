@@ -2,6 +2,7 @@ const AppError = require('../utils/AppError');
 const Restaurant = require('../models/restaurant');
 const DiningTable = require('../models/table');
 const Resort = require('../models/resort');
+const { getResortById } = require('./resortService');
 
 const getAllRestaurants = async () => {
     return await Restaurant.findAll({
@@ -50,12 +51,12 @@ const updateRestaurant = async (id, {restaurantName, resort_id, status}) => {
     if (!restaurant) {
         throw new AppError(404, 'Restaurant not found');
     }
+    console.log(`Updating restaurant ${restaurant.restaurantName} with new name ${restaurantName}, resort_id ${resort_id}, and status ${status}`);
 
-    const resort = await Restaurant.findOne({ where: { resort_id } });
+    const resort = await getResortById(resort_id);
     if (!resort) {
         throw new AppError(404, 'Resort not found');
     }
-
     await restaurant.update({restaurantName, resort_id, status});
     return restaurant;
 }
