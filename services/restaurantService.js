@@ -78,7 +78,6 @@ const changeState = async (id) => {
             });
         }
         const status = restaurant.status === 'Open' ? 'Close' : 'Open';
-        console.log(`Changing status of restaurant ${restaurant.restaurantName} to ${status}`);
         return await restaurant.update({ status });
 }
 
