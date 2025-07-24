@@ -283,6 +283,7 @@ const checkOutRoom = async (resortId,roomId, mealType, remarks, date = new Date(
                 resort_id : resortId,
                 room_id: roomId,
                 meal_type: mealType,
+                check_in_date: today,
                 status : 'checked-in'
             }
         });
