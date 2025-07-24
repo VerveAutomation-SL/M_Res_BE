@@ -68,6 +68,7 @@ const generateExcelReportservice = ({checkinStartDate, checkinEndDate, checkoutS
             { header: "Check-In Date", key: "check_in_date", width: 20 },
             { header: "Check-In Time", key: "check_in_time", width: 20 },
             { header: "Status", key: "status", width: 15 },
+            { header: "Check-Out Date", key: "check_out_date", width: 20 },
             { header: "Check-Out Time", key: "check_out_time", width: 20 },
             { header: "Checkout Remarks", key: "checkout_remarks", width: 40 }
         ];
@@ -96,6 +97,7 @@ const generateExcelReportservice = ({checkinStartDate, checkinEndDate, checkoutS
                     meal_plan: checkIn.meal_plan,
                     check_in_date: checkIn.check_in_date,
                     check_in_time: checkIn.check_in_time,
+                    check_out_date: checkIn.check_out_date || "N/A",
                     check_out_time: checkIn.check_out_time || "N/A",
                     status: checkIn.status,
                     checkout_remarks: checkIn.checkout_remarks || 'N/A'
