@@ -274,15 +274,15 @@ const setFilters = ({checkinStartDate, checkinEndDate, checkoutStartDate, checko
     }
 
     if (checkoutStartDate && checkoutEndDate) {
-        where.check_out_time = {
+        where.check_out_date = {
             [Op.between]: [new Date(checkoutStartDate), new Date(checkoutEndDate)],
         };
     }else if( checkoutStartDate) {
-        where.check_out_time = {
+        where.check_out_date = {
             [Op.gte]: new Date(checkoutStartDate),
         };
     } else if (checkoutEndDate) {
-        where.check_out_time = {
+        where.check_out_date = {
             [Op.lte]: new Date(checkoutEndDate),
         };
     }
