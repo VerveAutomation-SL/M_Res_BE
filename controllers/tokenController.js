@@ -22,7 +22,7 @@ const verifyAccessTokenController = (req, res) => {
     user = req.user;
     res.status(200).json({
         success: true,
-        message: "Access token is valid",
+        message: "Access token is valid, Logged in successfully.",
         user: {
             userId: user.UserId,
             role: user.role,

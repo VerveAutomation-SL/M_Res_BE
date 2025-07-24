@@ -7,7 +7,7 @@ function authenticateToken(req, res, next) {
     const token = req.cookies.accessToken;
     if (!token) return res.status(401).json({ 
         success: false,
-        message: "Access token is required" 
+        message: "Access token not found, please log in." 
     });
 
     jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
