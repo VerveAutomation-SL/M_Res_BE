@@ -7,4 +7,5 @@ const authenticateToken = require("../middleware/authMiddleware");
 router.post("/refresh", getTokenController)
 router.post("/verify", authenticateToken ,verifyAccessTokenController);
 
+
 module.exports = router;
