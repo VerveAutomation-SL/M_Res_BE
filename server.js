@@ -18,6 +18,10 @@ app.use(cors({
 }));
 
 // Routes
+app.use("/auth", require("./routes/userAuthRoutes"));
+app.use("/token", require("./routes/tokenRoutes"));
+
+// protected routes
 app.use("/restaurants", require("./routes/restaurantRoutes"));
 app.use("/tables", require("./routes/tableRoutes"));
 app.use("/resorts", require("./routes/resortRoutes"));
