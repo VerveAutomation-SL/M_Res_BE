@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const checkInController = require('../controllers/checkInController');
 
+router.get('/check-ins', checkInController.getCheckInsinResortController);
+
 // Process a new check-in
 router.post('/check-in',checkInController.processCheckIn);
 

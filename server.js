@@ -23,6 +23,8 @@ app.use("/tables", require("./routes/tableRoutes"));
 app.use("/resorts", require("./routes/resortRoutes"));
 app.use("/rooms", require("./routes/roomRoutes"));
 app.use('/checkins', require('./routes/checkInRoutes'));
+app.use('/analytics', require('./routes/analyticsRoutes'));
+app.use('/reports', require('./routes/reportRoutes'));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

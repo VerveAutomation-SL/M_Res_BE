@@ -47,6 +47,29 @@ const isWithinMealTime = (mealType) => {
     return currentTime >= mealPeriod.start && currentTime <= mealPeriod.end;
 };
 
+const getCheckInsinResort = async({where, order}) => {
+    try {
+        const checkIns = await CheckIn.findAll({
+            include: [
+                {
+                    model: Resort,
+                    attributes: ['name']
+                },
+                {
+                    model: Room,
+                    attributes: ['room_number']
+                }
+            ],
+            where,
+            order
+        });
+        return checkIns;
+    } catch (error) {
+        console.error('Error fetching check-ins:', error);
+        throw new Error('Could not fetch check-ins');
+    }
+};
+
 
 // Get all check-ins for a resort
 const getCheckins = async(resortId, date = new Date()) => {
@@ -299,6 +322,7 @@ module.exports = {
     createCheckIn,
     getCurrentMealType,
     isWithinMealTime,
+    getCheckInsinResort,
     checkOutRoom,
     getTodayCheckIns,
     MEAL_TIMES
