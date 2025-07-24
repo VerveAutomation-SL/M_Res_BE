@@ -46,6 +46,10 @@ const CheckIn = sequelize.define('CheckIns', {
     type:DataTypes.DATEONLY,
     defaultValue: DataTypes.NOW
   },
+  check_out_date: {
+    type: DataTypes.DATEONLY,
+    defaultValue: DataTypes.NOW
+  },
   check_in_time:{
     type: DataTypes.TIME,
     defaultValue:sequelize.fn('NOW')
@@ -54,12 +58,10 @@ const CheckIn = sequelize.define('CheckIns', {
     type: DataTypes.TIME,
     allowNull: true
   },
-
   checkout_remarks: {
     type: DataTypes.TEXT,
     allowNull: true
   },
-
   status: {
     type: DataTypes.ENUM('checked-in', 'checked-out'),
     defaultValue: 'checked-in',

@@ -29,7 +29,9 @@ const getPreviewDataService = async ({checkinStartDate, checkinEndDate, checkout
                 meal_plan: checkIn.meal_plan,
                 check_in_date: checkIn.check_in_date,
                 check_in_time: checkIn.check_in_time,
-                check_out_time: checkIn.check_out_time || null,
+                check_out_date: checkIn.check_out_date,
+                check_out_time: checkIn.check_out_time,
+                
                 status: checkIn.status,
                 checkout_remarks: checkIn.checkout_remarks || null
             };

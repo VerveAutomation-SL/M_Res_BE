@@ -47,6 +47,7 @@ const isWithinMealTime = (mealType) => {
     return currentTime >= mealPeriod.start && currentTime <= mealPeriod.end;
 };
 
+// Get check-ins in a resort with optional filtering and ordering
 const getCheckInsinResort = async({where, order}) => {
     try {
         const checkIns = await CheckIn.findAll({
@@ -295,6 +296,7 @@ const checkOutRoom = async (resortId,roomId, mealType, remarks, date = new Date(
          await CheckIn.update(
             { status: 'checked-out',
               check_out_time: currentTime,
+              check_out_date: today,
               checkout_remarks: remarks || 'Checked out without remarks'
             },
             { where: { id: checkIn.id } }

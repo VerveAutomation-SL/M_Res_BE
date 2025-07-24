@@ -1,6 +1,7 @@
 const checkInService = require('../services/checkInService');
 
-const getCheckInsinResortController = async (req, res) => {
+// Get all check-ins in a resort with optional filtering and ordering
+const getCheckInsinResort = async (req, res) => {
     try {
         const checkIns = await checkInService.getCheckInsinResort();
 
@@ -265,7 +266,7 @@ module.exports = {
     processCheckIn,
     getRoomCheckInStatus,
     getCheckInDetails,
-    getCheckInsinResortController,
+    getCheckInsinResort,
     checkOutRoom,
     getTodayCheckIns
 };
