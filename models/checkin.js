@@ -4,7 +4,7 @@ const Resort = require('./resort');
 const Room = require('./room');
 const { checkout } = require('../routes/resortRoutes');
 
-const CheckIn = sequelize.define('CheckIn', {
+const CheckIn = sequelize.define('CheckIns', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -54,20 +54,23 @@ const CheckIn = sequelize.define('CheckIn', {
     type: DataTypes.TIME,
     allowNull: true
   },
+
+  checkout_remarks: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+
   status: {
     type: DataTypes.ENUM('checked-in', 'checked-out'),
     defaultValue: 'checked-in',
     allowNull: false
   },
-  checkout_remarks: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
+
 },{
     timestamps: true,
     indexes:[
         {
-            fields: ['room_id', 'meal_type', 'check_in_date' , 'check_in_time']
+            fields: ['room_id', 'meal_type', 'check_in_date' , 'check_in_time', 'status']
         }
     ]
 });
@@ -77,6 +80,10 @@ Resort.hasMany(CheckIn, {
   onDelete: 'CASCADE'
 });
 
+Room.hasMany(CheckIn, {
+  foreignKey: 'room_id',
+  onDelete: 'CASCADE'
+});
 
 CheckIn.belongsTo(Resort, {
   foreignKey: 'resort_id'
@@ -84,11 +91,6 @@ CheckIn.belongsTo(Resort, {
 
 CheckIn.belongsTo(Room, {
   foreignKey: 'room_id'
-});
-
-Room.hasMany(CheckIn, {
-  foreignKey: 'room_id',
-  onDelete: 'CASCADE'
 });
 
 module.exports = CheckIn;

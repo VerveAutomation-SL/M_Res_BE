@@ -1,12 +1,13 @@
 const CheckIn = require('../models/checkin');
 const Resort = require('../models/resort');
 const Room = require('../models/room');
+const {Op} = require('sequelize');
 
 // Meal time periods
 const MEAL_TIMES ={
-    breakfast: { start: '06:00:00', end: '09:30:00' },
-    lunch: { start: '09:40:00', end: '15:00:00' },
-    dinner: { start: '18:00:00', end: '23:30:00' }
+    breakfast: { start: '06:00:00', end: '11:00:00' },
+    lunch: { start: '12:00:00', end: '16:00:00' },
+    dinner: { start: '18:00:00', end: '23:00:00' }
 };
 
 // Helper function to get current meal type based on time
@@ -102,7 +103,8 @@ const hasCheckedInForMeal = async(roomId, mealType,date = new Date()) => {
             where: {
                 room_id: roomId,
                 meal_type: mealType,
-                check_in_date: formattedDate
+                check_in_date: formattedDate,
+                status: 'checked-in',
             }
         });
 
@@ -151,7 +153,8 @@ const createCheckIn = async(checkInData) => {
             meal_type,
             meal_plan,
             check_in_date: checkInDate.toISOString().split('T')[0], // Default to today if not provided
-            check_in_time: check_in_time || currentTime // Default to current time if not provided
+            check_in_time: check_in_time || currentTime, // Default to current time if not provided
+            status: 'checked-in'
         });
     } catch (error) {
         console.error('Error creating check-in:', error);
@@ -173,7 +176,8 @@ const getRoomCheckInStatus = async(resortId , mealType, date = new Date()) => {
             where:{
                 resort_id: resortId,
                 meal_type: mealType,
-                check_in_date: formattedDate
+                check_in_date: formattedDate,
+                status: 'checked-in'
             },
             include:[{
                 model: Room,
@@ -201,6 +205,42 @@ const getRoomCheckInStatus = async(resortId , mealType, date = new Date()) => {
     }
 };
 
+// Get check-ins today
+const getTodayCheckIns = async (resortId, date = new Date()) => {
+    try{
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const checkIns = await CheckIn.findAll({
+            where:{
+                resort_id: resortId,
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            },
+            include: [
+                {
+                    model: Room,
+                    attributes: ['room_number']
+                },
+                {
+                    model: Resort,
+                    attributes: ['name']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        return checkIns;
+    }catch (error) {
+        console.error('Error fetching today\'s check-ins:', error);
+        throw new Error('Could not fetch today\'s check-ins');
+    }
+};
+
 // Get checkin details 
 const getCheckInDetails = async(resortId, roomId, mealType, date = new Date()) => {
     try {
@@ -211,7 +251,8 @@ const getCheckInDetails = async(resortId, roomId, mealType, date = new Date()) =
                 resort_id: resortId,
                 room_id: roomId,
                 meal_type: mealType,
-                check_in_date: formattedDate
+                check_in_date: formattedDate,
+                status: 'checked-in'
             }
         });
 
@@ -226,6 +267,53 @@ const getCheckInDetails = async(resortId, roomId, mealType, date = new Date()) =
     }
 };
 
+// Check-out a room
+const checkOutRoom = async (resortId,roomId, mealType, remarks, date = new Date()) => {
+    try {
+        const today = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
+
+        const room = await Room.findByPk(roomId);
+        if (!room) {
+            throw new Error(`Room with ID ${roomId} not found`);
+        }
+
+        const checkIn = await CheckIn.findOne({
+            where:{
+                resort_id : resortId,
+                room_id: roomId,
+                meal_type: mealType,
+                status : 'checked-in'
+            }
+        });
+
+        if (!checkIn) {
+            throw new Error(`No active check-in found for room ${room.room_number} for meal type ${mealType} on ${today}`);
+        }
+
+        // Update check-in status to checked-out
+        const currentTime = new Date().toTimeString().split(' ')[0]; // Get current time in HH:MM:SS format
+         await CheckIn.update(
+            { status: 'checked-out',
+              check_out_time: currentTime,
+              checkout_remarks: remarks || 'Checked out without remarks'
+            },
+            { where: { id: checkIn.id } }
+        );
+
+        const updatedCheckIn = await CheckIn.findByPk(checkIn.id);
+
+        return {
+            success: true,
+            message: `Room ${room.room_number} checked out successfully for meal type ${mealType} on ${today}`,
+            data: updatedCheckIn
+        };
+
+    } catch (error) {
+        console.error('Error checking out room:', error);
+        throw new Error('Could not check out room');
+    }
+};
+
 module.exports = {
     getCheckins,
     getRoomCheckInStatus,
@@ -234,6 +322,8 @@ module.exports = {
     createCheckIn,
     getCurrentMealType,
     isWithinMealTime,
-    MEAL_TIMES,
-    getCheckInsinResort
+    getCheckInsinResort,
+    checkOutRoom,
+    getTodayCheckIns,
+    MEAL_TIMES
 };

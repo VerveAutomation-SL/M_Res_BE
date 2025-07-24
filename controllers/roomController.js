@@ -21,23 +21,45 @@ const getAllRooms = async (req, res) => {
 
 // Add new room
 const createRoom = async (req, res) => {
-    const roomData = req.body;
-
     try{
-        const newRoom = await roomServices.createRoom(roomData);
+        const { room_number, resort_id } = req.body;
+
+        // Validate required fields
+        if (!room_number || !resort_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        if (!room_number.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Room number cannot be empty'
+            });
+        }
+
+        if (isNaN(resort_id) || resort_id <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid resort ID is required'
+            });
+        }
+
+        const newRoom = await roomServices.createRoom({ room_number, resort_id });
         return res.status(201).json({
             success: true,
+            message: 'Room created successfully',
             data: newRoom
         });
-    }catch(err){
-        console.error('Error creating room:', err);
-        return res.status(500).json({
+    }catch(error){
+        console.error('Error creating room:', error);
+        return res.status(error.statusCode || 500).json({
             success: false,
-            message: 'Could not create room',
-            err: err.message
+            message: error.message || 'Internal Server Error'
         });
     }
-};
+}
 
 // Get room by ID
 const getRoomById = async (req, res) => {
@@ -64,37 +86,65 @@ const getRoomById = async (req, res) => {
             err: err.message
         });
     }
-};
+}
 
-// Get room by resort ID
-// const getRoomByResortId = async (req, res) => {
-//     const { resortId } = req.params;
+// Update a room
+const updateRoom = async (req, res) => {
+    const roomId = req.params.roomId;
+    const { room_number, resort_id} = req.body;
+    console.log('Updating room:', roomId);
+    console.log('Room data:', req.body);
 
-//     try {
-//         const rooms = await roomServices.getRoomByResortId(resortId);
-//         if (!rooms || rooms.length === 0) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: 'No rooms found for this resort'
-//             });
-//         }
+    try {
+        // Validate required fields
+        if (!room_number || !resort_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
 
-//         return res.status(200).json({
-//             success: true,
-//             data: rooms
-//         });
-//     } catch (err) {
-//         console.error('Error fetching rooms by resort ID:', err);
-//         return res.status(500).json({
-//             success: false,
-//             message: 'Could not fetch rooms by resort ID',
-//             err: err.message
-//         });
-//     }
-// };
+        console.log('Updating room:', roomId);
+        const updatedRoom = await roomServices.updateRoom(roomId, { room_number, resort_id });
+        res.status(200).json({
+            success: true,
+            message: 'Room updated successfully',
+            data: updatedRoom
+        });
+    } catch (error) {
+        console.error('Error updating room:', error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Internal Server Error'
+        });
+    }
+}
+
+// Delete a room
+const deleteRoom = async (req, res) => {
+    const roomId = req.params.roomId;
+
+    try {
+        const deletedRoom = await roomServices.deleteRoom(roomId);
+        res.status(200).json({
+            success: true,
+            message: 'Room deleted successfully',
+            data: deletedRoom
+        });
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Internal Server Error'
+        });
+    }
+}
+
 
 module.exports = {
     getAllRooms,
     createRoom,
-    getRoomById
+    getRoomById,
+    updateRoom,
+    deleteRoom
 };

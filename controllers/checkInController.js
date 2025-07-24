@@ -31,14 +31,7 @@ const getAllCheckIns = async (req, res) => {
                 message: 'Resort ID is required'
             });
         }
-        // if(resortId === undefined){
-        //     return res.status(200).json({
-        //         success: true,
-        //         count: checkIns.length,
-        //         data: checkIns
-        //     });
-        // }
-
+        
         const checkIns = await checkInService.getCheckins(resortId, date ? new Date(date) : new Date());
 
         return res.status(200).json({
@@ -163,18 +156,18 @@ const getRoomCheckInStatus = async (req, res) => {
 // Get check-in details for a specific room and meal type
 const getCheckInDetails = async (req, res) => {
     try {
-        const { resortId, roomNumber, mealType, date } = req.query;
+        const { resortId, roomId, mealType, date } = req.query;
 
-        if (!resortId || !roomNumber || !mealType) {
+        if (!resortId || !roomId || !mealType) {
             return res.status(400).json({
                 success: false,
-                message: 'resortId, roomNumber, and mealType are required'
+                message: 'resortId, roomId, and mealType are required'
             });
         }
 
         const checkInDetails = await checkInService.getCheckInDetails(
             Number(resortId),
-            roomNumber,
+            Number(roomId),
             mealType,
             date ? new Date(date) : new Date()
         );
@@ -193,12 +186,88 @@ const getCheckInDetails = async (req, res) => {
     }
 };
 
+// Process check-out for a room
+const checkOutRoom = async (req, res) => {
+    try{
+        const {resortId, roomId, mealType, remarks, date} = req.body;
+
+        if(!resortId || !roomId || !mealType){
+            return res.status(400).json({
+                success: false,
+                message: 'resortId, roomId, and mealType are required'
+            });
+        }
+
+        const checkOutResult = await checkInService.checkOutRoom(
+            Number(resortId),
+            Number(roomId),
+            mealType,
+            remarks,
+            date ? new Date(date) : new Date()
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: checkOutResult
+        });
+    } catch (error) {
+        console.error('Error processing check-out:', error);
+
+        if(error.message.includes('No active check-in found')){
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: 'Could not process check-out',
+            err: error.message
+        });
+    }
+}
+
+// get check-ins for today 
+const getTodayCheckIns = async (req, res) => {
+    try {
+        const { resortId, date } = req.query;
+
+        if (!resortId) {
+            return res.status(400).json({
+                success: false,
+                message: 'resortId is required'
+            });
+        }
+
+        const checkDate = date ? new Date(date) : new Date();
+        const checkIns = await checkInService.getTodayCheckIns(Number(resortId), checkDate);
+
+        return res.status(200).json({
+            success: true,
+            count: checkIns.length,
+            data: checkIns,
+            message: `Found ${checkIns.length} check-ins for ${checkDate.toDateString()}`
+        });
+
+    } catch (error) {
+        console.error('Error fetching today\'s check-ins:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Could not fetch today\'s check-ins',
+            err: error.message
+        });
+    }
+}
+
 module.exports = {
     getAllCheckIns,
     processCheckIn,
     getRoomCheckInStatus,
     getCheckInDetails,
-    getCheckInsinResortController
+    getCheckInsinResortController,
+    checkOutRoom,
+    getTodayCheckIns
 };
 
 
