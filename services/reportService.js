@@ -261,11 +261,27 @@ const setFilters = ({checkinStartDate, checkinEndDate, checkoutStartDate, checko
         where.check_in_date = {
         [Op.between]: [new Date(checkinStartDate), new Date(checkinEndDate)],
         };
+    }else if (checkinStartDate) {
+        where.check_in_date = {
+            [Op.gte]: new Date(checkinStartDate),
+        };
+    } else if (checkinEndDate) {
+        where.check_in_date = {
+            [Op.lte]: new Date(checkinEndDate),
+        };
     }
 
     if (checkoutStartDate && checkoutEndDate) {
         where.check_out_time = {
             [Op.between]: [new Date(checkoutStartDate), new Date(checkoutEndDate)],
+        };
+    }else if( checkoutStartDate) {
+        where.check_out_time = {
+            [Op.gte]: new Date(checkoutStartDate),
+        };
+    } else if (checkoutEndDate) {
+        where.check_out_time = {
+            [Op.lte]: new Date(checkoutEndDate),
         };
     }
 
