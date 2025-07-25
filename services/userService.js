@@ -100,13 +100,13 @@ const createUser = async ({ username, email, password, role, PermissionId }) => 
     });
 };
 
-const updateUser = async (id, { username, email, password, role, PermissionId }) => {
+const updateUser = async (id, { username, email, password, role, status, PermissionId }) => {
     const user = await getUserById(id);
     if (!user) {
         throw new AppError(404, 'User not found');
     }
     
-    console.log(`Updating user ${user.username} with new data: username=${username}, email=${email}, role=${role}`);
+    console.log(`Updating user ${user.username} with new data: username=${username}, email=${email}, role=${role}, status=${status}, PermissionId=${PermissionId}`);
     
     // Check if permission exists if provided
     if (PermissionId) {
@@ -122,6 +122,7 @@ const updateUser = async (id, { username, email, password, role, PermissionId })
         email,
         password,
         role,
+        status,
         PermissionId
     });
     

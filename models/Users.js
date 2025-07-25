@@ -58,7 +58,20 @@ const User = sequelize.define("User", {
             key: 'PermissionId'
         }
     },
-    }, {
+
+    status: {
+        type: DataTypes.ENUM("Active", "Inactive"),
+        allowNull: false,
+        defaultValue: "Active",
+        validate: {
+            isIn: {
+                args: [["Active", "Inactive"]],
+                msg: "Status must be either Active or Inactive"
+            }
+        }
+    }
+
+}, {
     timestamps: true,
     tableName: 'users',
 

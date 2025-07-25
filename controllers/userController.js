@@ -139,13 +139,20 @@ const createUserController = async (req, res) => {
 
 const updateUserController = async (req, res) => {
     const { id } = req.params;
-    const { username, email, password, role, PermissionId } = req.body;
+    const { username, email, password, role, status, PermissionId } = req.body;
 
     if (!username || !email || !password || !role) {
         return res.status(400).json({
             success: false,
             message: 'Username, email, password, and role are required'
         });
+    }
+
+    if (status && !['Active', 'Inactive'].includes(status)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Status must be either Active or Inactive'
+    })
     }
 
     if (!['Admin', 'Manager', 'User'].includes(role)) {
