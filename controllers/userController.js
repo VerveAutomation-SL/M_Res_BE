@@ -1,4 +1,4 @@
-// controllers/userController.js
+
 const {
     getAllUsers,
     getUserById,
@@ -6,7 +6,7 @@ const {
     updateUser,
     deleteUser,
     getUsersByRole,
-    getUserStatistics
+    getUserStatistics,
 } = require('../services/userService');
 
 const getAllUsersController = async (req, res) => {
@@ -219,6 +219,7 @@ const getUserStatsController = async (req, res) => {
         });
     }
 };
+
 
 module.exports = {
     getAllUsersController,

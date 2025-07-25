@@ -8,7 +8,7 @@ const {
     updateUserController,
     deleteUserController,
     getAllAdminController,
-    getUserStatsController
+    getUserStatsController,
 } = require('../controllers/userController');
 
 // General user management routes
