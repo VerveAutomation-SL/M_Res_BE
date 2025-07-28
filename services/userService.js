@@ -15,7 +15,7 @@ const getAllUsers = async () => {
         where: whereClause,
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] },
         order: [['createdAt', 'DESC']],
@@ -31,7 +31,7 @@ const getUserById = async (id) => {
     const user = await User.findByPk(id, {
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] }
     });
@@ -47,7 +47,7 @@ const getUsersByRole = async (role) => {
         where: { role },
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] },
         order: [['username', 'ASC']]
@@ -94,7 +94,7 @@ const createUser = async ({ username, email, password, role, PermissionId }) => 
     return await User.findByPk(user.UserId, {
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] }
     });
@@ -130,7 +130,7 @@ const updateUser = async (id, { username, email, password, role, status, Permiss
     return await User.findByPk(id, {
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] }
     });
@@ -164,7 +164,7 @@ const getUserByEmail = async (email) => {
         where: { email },
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] }
     });
@@ -175,7 +175,7 @@ const getUserByUsername = async (username) => {
         where: { username },
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] }
     });
@@ -186,7 +186,7 @@ const getUsersByPermission = async (permissionId) => {
         where: { PermissionId: permissionId },
         include: [{
             model: Permission,
-            attributes: ['PermissionId', 'description']
+            as: 'permission',
         }],
         attributes: { exclude: ['password'] },
         order: [['username', 'ASC']]

@@ -52,7 +52,7 @@ const User = sequelize.define("User", {
     },
     PermissionId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Permission,
             key: 'PermissionId'
@@ -62,7 +62,7 @@ const User = sequelize.define("User", {
     status: {
         type: DataTypes.ENUM("Active", "Inactive"),
         allowNull: false,
-        defaultValue: "Active",
+        defaultValue: "Inactive",
         validate: {
             isIn: {
                 args: [["Active", "Inactive"]],
@@ -88,8 +88,15 @@ const User = sequelize.define("User", {
         }
     }
 })
+Permission.hasMany(User, {
+    foreignKey: 'PermissionId',
+    as: 'users',
+});
 
-Permission.hasMany(User, {foreignKey: 'PermissionId'});
-User.belongsTo(Permission, {foreignKey: 'PermissionId'});
+User.belongsTo(Permission, {
+    foreignKey: 'PermissionId',
+    as: 'permission'
+});
+
 
 module.exports = User;

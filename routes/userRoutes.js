@@ -8,6 +8,8 @@ const {
     updateUserController,
     deleteUserController,
     getAllAdminController,
+    getAllHostsController,
+    getAllManagersController,
     getUserStatsController,
 } = require('../controllers/userController');
 
@@ -15,6 +17,8 @@ const {
 router.get('/', getAllUsersController);
 router.get('/stats/overview', getUserStatsController);
 router.get('/admins', getAllAdminController);
+router.get('/managers', getAllManagersController);
+router.get('/hosts', getAllHostsController);
 router.get('/:id', getUserByIdController);
 
 router.post('/', createUserController); 

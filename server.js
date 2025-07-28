@@ -17,6 +17,7 @@ app.use(cors({
   credentials: true
 }));
 
+
 // Routes
 app.use("/auth", require("./routes/userAuthRoutes"));
 app.use("/token", require("./routes/tokenRoutes"));
@@ -31,6 +32,18 @@ app.use('/analytics', require('./routes/analyticsRoutes'));
 app.use('/reports', require('./routes/reportRoutes'));
 app.use("/users", require("./routes/userRoutes"));
 app.use("/permissions", require("./routes/permissionRoutes"));
+
+app.use("/", (req, res ) => {
+  res.status(200).json({
+    message: "Welcome to the Hotel Management System API",
+    status: "success"
+  }); 
+});
+
+// 404 fallback route for everything else
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found", status: "fail" });
+});
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

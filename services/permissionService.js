@@ -4,7 +4,6 @@ const AppError = require('../utils/AppError');
 const getAllPermissions = async () => {
     try {
         const permissions = await Permission.findAll({
-            attributes: ['PermissionId', 'description'],
             order: [['description', 'ASC']]
         });
         return permissions;
