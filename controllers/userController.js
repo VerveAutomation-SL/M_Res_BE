@@ -87,7 +87,7 @@ const getAllManagersController = async (req, res) => {
 
 const getAllHostsController = async (req, res) => {
     try {
-        const hosts = await getUsersByRole('User');
+        const hosts = await getUsersByRole('Host');
         res.status(200).json({
             success: true,
             message: 'Hosts retrieved successfully',
@@ -107,16 +107,16 @@ const getAllHostsController = async (req, res) => {
 const createUserController = async (req, res) => {
     const { username, email, password, role , PermissionId } = req.body;
 
-    if (!username || !email || !password || !role || !PermissionId) {
+    if (!username || !email || !password || !role) {
         return res.status(400).json({
             success: false,
-            message: 'Username, email, password, role, and PermissionId are required'
+            message: 'Username, email, password, role  are required'
         });
     }
-    if (!['Admin', 'Manager', 'User'].includes(role)) {
+    if (!['Admin', 'Manager', 'Host'].includes(role)) {
         return res.status(400).json({
             success: false,
-            message: 'Role must be either Admin, Manager, or User'
+            message: 'Role must be either Admin, Manager, or Host'
         });
     }
 
@@ -141,13 +141,6 @@ const updateUserController = async (req, res) => {
     const { id } = req.params;
     const { username, email, password, role, status, PermissionId } = req.body;
 
-    if (!username || !email || !password || !role) {
-        return res.status(400).json({
-            success: false,
-            message: 'Username, email, password, and role are required'
-        });
-    }
-
     if (status && !['Active', 'Inactive'].includes(status)) {
         return res.status(400).json({
             success: false,
@@ -155,7 +148,7 @@ const updateUserController = async (req, res) => {
     })
     }
 
-    if (!['Admin', 'Manager', 'User'].includes(role)) {
+    if (!['Admin', 'Manager', 'Host'].includes(role)) {
         return res.status(400).json({
             success: false,
             message: 'Role must be either Admin, Manager, or User'
@@ -168,7 +161,8 @@ const updateUserController = async (req, res) => {
             email, 
             password, 
             role, 
-            PermissionId 
+            PermissionId,
+            status
         });
         res.status(200).json({
             success: true,

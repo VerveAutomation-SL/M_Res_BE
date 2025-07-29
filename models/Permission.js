@@ -9,6 +9,19 @@ const Permission = sequelize.define("Permission", {
         primaryKey: true,
         autoIncrement: true,
     },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: {
+            name: 'name',
+            msg: 'Permission name must be unique',
+        },
+        validate: {
+            notEmpty: {
+                msg: 'Permission name cannot be empty',
+            }
+        }
+    },
     restaurantId: {
         type: DataTypes.INTEGER,
         allowNull: true,
