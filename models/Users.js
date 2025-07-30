@@ -17,13 +17,13 @@ const User = sequelize.define("User", {
         unique: true,
     },
     role: {
-        type: DataTypes.ENUM("Admin", "User"),
+        type: DataTypes.ENUM("Admin", "Manager", "Host"),
         allowNull: false,
         defaultValue: "User",
         validate: {
             isIn: {
-                args: [["Admin", "User"]],
-                msg: "Role must be either 'Admin' or 'User'",
+                args: [["Admin", "Manager", "Host"]],
+                msg: "Role must be either Admin, Manager, or Host",
             }
         }
     },
@@ -58,7 +58,20 @@ const User = sequelize.define("User", {
             key: 'PermissionId'
         }
     },
-    }, {
+
+    status: {
+        type: DataTypes.ENUM("Active", "Inactive"),
+        allowNull: false,
+        defaultValue: "Inactive",
+        validate: {
+            isIn: {
+                args: [["Active", "Inactive"]],
+                msg: "Status must be either Active or Inactive"
+            }
+        }
+    }
+
+}, {
     timestamps: true,
     tableName: 'users',
 
@@ -75,8 +88,15 @@ const User = sequelize.define("User", {
         }
     }
 })
+Permission.hasMany(User, {
+    foreignKey: 'PermissionId',
+    as: 'users',
+});
 
-Permission.hasMany(User, {foreignKey: 'PermissionId'});
-User.belongsTo(Permission, {foreignKey: 'PermissionId'});
+User.belongsTo(Permission, {
+    foreignKey: 'PermissionId',
+    as: 'permission'
+});
+
 
 module.exports = User;

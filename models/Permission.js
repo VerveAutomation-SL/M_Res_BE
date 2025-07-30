@@ -1,5 +1,7 @@
 const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
+const Restaurant = require("./restaurant");
+const User = require("./Users");
 
 const Permission = sequelize.define("Permission", {
     PermissionId: {
@@ -7,15 +9,34 @@ const Permission = sequelize.define("Permission", {
         primaryKey: true,
         autoIncrement: true,
     },
-    types: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true,
-        defaultValue: [],
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: {
+            name: 'name',
+            msg: 'Permission name must be unique',
+        },
         validate: {
-            isArray(value) {
-                if (!Array.isArray(value)) {
-                    throw new Error("Permissions must be an array");
-                }
+            notEmpty: {
+                msg: 'Permission name cannot be empty',
+            }
+        }
+    },
+    restaurantId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: Restaurant,
+            key: 'id'
+        },
+    },
+    meal_type: {
+        type: DataTypes.ENUM('Breakfast', 'Lunch', 'Dinner', 'All'),
+        allowNull: false,
+        validate: {
+            isIn: {
+                args: [['Breakfast', 'Lunch', 'Dinner', 'All']],
+                msg: 'Meal type must be either Breakfast, Lunch, Dinner, or All',
             }
         }
     },
@@ -27,5 +48,19 @@ const Permission = sequelize.define("Permission", {
     timestamps: true,
     tableName: 'permissions',
 });
+
+Permission.belongsTo(Restaurant, {
+    foreignKey: 'restaurantId',
+    as: 'restaurant',
+});
+
+Restaurant.hasMany(Permission, {
+    foreignKey: 'restaurantId',
+    as: 'permissions',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+
+
 
 module.exports = Permission;
