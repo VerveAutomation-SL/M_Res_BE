@@ -11,6 +11,7 @@ const {
     getAllHostsController,
     getAllManagersController,
     getUserStatsController,
+    getActivehostsController
 } = require('../controllers/userController');
 
 // General user management routes
@@ -25,5 +26,8 @@ router.post('/', createUserController);
 
 router.put('/:id', updateUserController);
 router.delete('/:id', deleteUserController);
+
+// Active hosts route
+router.get('/active/hosts', getActivehostsController);
 
 module.exports = router;

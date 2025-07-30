@@ -7,6 +7,7 @@ const {
     deleteUser,
     getUsersByRole,
     getUserStatistics,
+    getActivehosts
 } = require('../services/userService');
 
 const getAllUsersController = async (req, res) => {
@@ -214,6 +215,24 @@ const getUserStatsController = async (req, res) => {
     }
 };
 
+const getActivehostsController = async (req, res) => {
+    try {
+        const count = await getActivehosts();
+        res.status(200).json({
+            success: true,
+            message: 'Active hosts retrieved successfully',
+            data: count
+        });
+    } catch (error) {
+        console.error('Error retrieving active hosts:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while retrieving active hosts',
+            error: error.message
+        });
+    }
+};
+
 
 module.exports = {
     getAllUsersController,
@@ -224,5 +243,6 @@ module.exports = {
     createUserController,
     updateUserController,
     deleteUserController,
-    getUserStatsController
+    getUserStatsController,
+    getActivehostsController
 };

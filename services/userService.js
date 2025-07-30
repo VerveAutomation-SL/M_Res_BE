@@ -193,6 +193,13 @@ const getUsersByPermission = async (permissionId) => {
     });
 };
 
+
+const getActivehosts = async () => {
+    return await User.count({
+        where: { role: 'Host', status: 'Active' }
+    });
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -203,5 +210,6 @@ module.exports = {
     getUserStatistics,
     getUserByEmail,
     getUserByUsername,
-    getUsersByPermission
+    getUsersByPermission,
+    getActivehosts
 };
