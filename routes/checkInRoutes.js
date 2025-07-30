@@ -16,6 +16,9 @@ router.get('/details', checkInController.getCheckInDetails);
 // Get today's check-ins for a specific resort
 router.get('/today', checkInController.getTodayCheckIns);
 
+// Get today's check-ins for all resorts
+router.get('/today/all', checkInController.getTodayAllCheckIns);
+
 // Get all check-ins for a resort
 router.get('/:resortId', checkInController.getAllCheckIns);
 

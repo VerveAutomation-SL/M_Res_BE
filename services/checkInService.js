@@ -242,6 +242,41 @@ const getTodayCheckIns = async (resortId, date = new Date()) => {
     }
 };
 
+// Get all check-ins for all resorts today
+const getTodayAllCheckIns = async (date = new Date()) => {
+    try{
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const checkIns = await CheckIn.findAll({
+            where:{
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            },
+            include: [
+                {
+                    model: Room,
+                    attributes: ['room_number']
+                },
+                {
+                    model: Resort,
+                    attributes: ['name']
+                },
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        return checkIns;
+    }catch (error) {
+        console.error('Error fetching today\'s check-ins:', error);
+        throw new Error('Could not fetch today\'s check-ins');
+    }
+};
+
 // Get checkin details 
 const getCheckInDetails = async(resortId, roomId, mealType, date = new Date()) => {
     try {
@@ -328,5 +363,6 @@ module.exports = {
     getCheckInsinResort,
     checkOutRoom,
     getTodayCheckIns,
+    getTodayAllCheckIns,
     MEAL_TIMES
 };
