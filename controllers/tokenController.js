@@ -1,20 +1,25 @@
 const {generateTokens, verifyAccessToken} = require("../services/tokenService");
 
 const getTokenController = (req, res) => {
-    const { accesstoken } = req.body;
+    // const { accesstoken } = req.body;\
+    const accessToken  = req.cookies.accessToken;
+    // const accesstoken = req.headers['Authorization']?.split(' ')[1];
 
-    if (!accesstoken) {
-        return res.status(401).json({ message: "Refresh token is required" });
+    console.log("Access Token:", accessToken);
+
+
+    if (!accessToken) {
+        return res.status(401).json({ message: "Access token not found." });
     }
 
     try {
-    const decoded = verifyAccessToken(accesstoken);
-    const userData = {userId: decoded.UserId, role: decoded.role, username: decoded.username, email: decoded.email}
-    const tokens = generateTokens(userData);
+        const decoded = verifyAccessToken(accessToken);
+        const userData = {userId: decoded.UserId, role: decoded.role, username: decoded.username, email: decoded.email}
+        // const accesstoken = generateTokens(userData);
 
-    return res.json({ success: true, ...tokens });
+        return res.json({ success: true, message: "Access token is valid.", user: userData });
   } catch (err) {
-    return res.status(401).json({ message: "Invalid refresh token" });
+    return res.status(401).json({ message: "Invalid access token" });
   }
 }
 

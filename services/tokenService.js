@@ -9,8 +9,8 @@ const JWT_REFRESH_TOKEN_EXPIRATION = process.env.JWT_REFRESH_TOKEN_EXPIRATION ||
 
 const generateTokens = (payload) => {
     const accessToken = jwt.sign(payload, JWT_ACCESS_TOKEN_SECRET, { expiresIn: JWT_ACCESS_TOKEN_EXPIRATION });
-    const refreshToken = jwt.sign(payload, JWT_REFRESH_TOKEN_SECRET, { expiresIn: JWT_REFRESH_TOKEN_EXPIRATION });
-    return { accessToken, refreshToken };
+    // const refreshToken = jwt.sign(payload, JWT_REFRESH_TOKEN_SECRET, { expiresIn: JWT_REFRESH_TOKEN_EXPIRATION });
+    return accessToken ;
   };
 
   const verifyAccessToken = (token) => {

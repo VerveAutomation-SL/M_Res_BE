@@ -3,15 +3,16 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/Users");
 const { generateTokens } = require("./tokenService");
 const AppError = require("../utils/AppError");
+const Permission = require("../models/Permission");
 require("dotenv").config();
 
 
-const loginService = async ({ userName, password, role }) => {
+const loginService = async ({ userName, password }) => {
 
         // Find Admin by username
-        const user = await User.findOne({ where: { username: userName, role: role } });
+        const user = await User.findOne({ where: { username: userName } });
         if (!user) {
-            throw new AppError(404, `User not found or not ${(role === "Admin" ? "an Admin" : "a User")}`);
+            throw new AppError(404, `User not found with username: ${userName}`);
         }
 
         // Verify password
@@ -20,12 +21,12 @@ const loginService = async ({ userName, password, role }) => {
             throw new AppError(401, "Invalid password");
         }
 
-        const userData = {userId: user.UserId, role: user.role, username: user.username, email: user.email}
+        const userData = {userId: user.UserId, role: user.role, username: user.username, email: user.email, permissionId: user.PermissionId};
 
         // Generate JWT tokens
-        const tokens = generateTokens(userData); 
+        const accessToken = generateTokens(userData); 
 
-        return { tokens: tokens, user: userData  };
+        return { accessToken, user: userData  };
 }
 
 const registerService = async ({ userName, email, password }) => {

@@ -1,7 +1,7 @@
 const {loginService, registerService} = require("../services/userAuthService");
 
 const loginController = async (req, res) => {
-    const {userName, password, role} = req.body;
+    const {userName, password} = req.body;
 
     if (!userName?.trim() || !password?.trim()) {
         return res.status(400).json({
@@ -11,14 +11,12 @@ const loginController = async (req, res) => {
     }
 
     try {
-        const { tokens, user } = await loginService({ userName, password, role });
+        const { accessToken, user } = await loginService({ userName, password });
         res
-            .cookie("accessToken", tokens.accessToken, { httpOnly: true, secure: true, sameSite: "Strict" })
             .status(200).json({ 
                 success: true, 
-                message: `${role} Login successful`,
-                accessToken: tokens.accessToken,
-                user 
+                message: `${user.username} Login successful`,
+                accessToken: accessToken, 
             });
     } catch (error) {
         console.error("Error:", error);

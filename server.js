@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const sequelize = require("./config/db");
+const authenticateToken = require("./middleware/authMiddleware");
+const vartfyPermission = require("./middleware/verifyPermission");
 
 const app = express();
 
@@ -23,11 +25,11 @@ app.use("/auth", require("./routes/userAuthRoutes"));
 app.use("/token", require("./routes/tokenRoutes"));
 
 // protected routes
-app.use("/restaurants", require("./routes/restaurantRoutes"));
-app.use("/tables", require("./routes/tableRoutes"));
+app.use('/checkins', require('./routes/checkInRoutes'));
 app.use("/resorts", require("./routes/resortRoutes"));
 app.use("/rooms", require("./routes/roomRoutes"));
-app.use('/checkins', require('./routes/checkInRoutes'));
+app.use("/restaurants", require("./routes/restaurantRoutes"));
+app.use("/tables", require("./routes/tableRoutes"));
 app.use('/analytics', require('./routes/analyticsRoutes'));
 app.use('/reports', require('./routes/reportRoutes'));
 app.use("/users", require("./routes/userRoutes"));
