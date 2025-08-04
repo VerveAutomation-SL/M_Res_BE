@@ -69,6 +69,16 @@ const User = sequelize.define("User", {
                 msg: "Status must be either Active or Inactive"
             }
         }
+    },
+
+    resetPasswordToken:{
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+
+    resetPasswordExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
     }
 
 }, {

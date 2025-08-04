@@ -1,4 +1,4 @@
-const {loginService, registerService} = require("../services/userAuthService");
+const {loginService, registerService, forgotPasswordService , resetPasswordService} = require("../services/userAuthService");
 
 const loginController = async (req, res) => {
     const {userName, password} = req.body;
@@ -52,7 +52,78 @@ const registerController = async (req, res) => {
     }
 }
 
+const forgotPasswordController = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email?.trim()) {
+        return res.status(400).json({
+            success: false,
+            message: "Email is required"
+        });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Please enter a valid email address"
+        });
+    }
+
+    try {
+        const result = await forgotPasswordService({ email });
+        res.status(200).json({
+            success: true,
+            message: result.message
+        });
+    } catch (error) {
+        console.error("Forgot password error:", error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Internal Server Error"
+        });
+    }
+};
+
+const resetPasswordController = async (req, res) => {
+    console.log("Reset Password Controller called");
+    const { token, password } = req.body;
+    console.log("Reset Password Controller body:", req.body);
+
+    if (!token?.trim() || !password?.trim()) {
+        return res.status(400).json({
+            success: false,
+            message: "Token and new password are required"
+        });
+    }
+
+    // Password validation
+    if (password.length < 8) {
+        return res.status(400).json({
+            success: false,
+            message: "Password must be at least 8 characters long"
+        });
+    }
+
+    try {
+        const result = await resetPasswordService(token, password );
+        res.status(200).json({
+            success: true,
+            message: result.message
+        });
+    } catch (error) {
+        console.error("Reset password error:", error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Internal Server Error"
+        });
+    }
+};
+
 module.exports = {
-    loginController,  
-    registerController
+    loginController,
+    registerController,
+    forgotPasswordController,
+    resetPasswordController
 };
