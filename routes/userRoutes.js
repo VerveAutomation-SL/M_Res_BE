@@ -11,7 +11,8 @@ const {
     getAllHostsController,
     getAllManagersController,
     getUserStatsController,
-    getActivehostsController
+    getActivehostsController,
+    verifyUserPasswordController
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/authMiddleware');
 
@@ -30,5 +31,8 @@ router.delete('/:id', authenticateToken, deleteUserController);
 
 // Active hosts route
 router.get('/active/hosts', getActivehostsController);
+
+// Password verification route
+router.post("/verify/password", verifyUserPasswordController);
 
 module.exports = router;

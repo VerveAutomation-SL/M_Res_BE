@@ -1,9 +1,10 @@
 // services/userService.js
 const AppError = require('../utils/AppError');
 const User = require('../models/Users');
-const { Op, Model } = require('sequelize');
+const { Op } = require('sequelize');
 const Resort = require('../models/resort');
 const Restaurant = require('../models/restaurant');
+const bcrypt = require('bcrypt');
 
 const getAllUsers = async () => {
     const whereClause = {
@@ -183,6 +184,20 @@ const getActivehosts = async () => {
     });
 };
 
+const verifyPassword = async (userId, password) => {
+    const user = await User.findByPk(userId);
+    if (!user) {
+        throw new AppError(404, 'User not found');
+    }
+    
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+       return false;
+    }
+    
+    return true;
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -193,5 +208,6 @@ module.exports = {
     getUserStatistics,
     getUserByEmail,
     getUserByUsername,
-    getActivehosts
+    getActivehosts,
+    verifyPassword
 };
