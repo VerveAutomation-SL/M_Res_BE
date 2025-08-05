@@ -104,6 +104,23 @@ const User = sequelize.define("User", {
                 msg: "Status must be either Active or Inactive"
             }
         }
+    },
+
+    created_by:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: "users",
+            key: 'UserId'
+        },
+    },
+    updated_by: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: "users",
+            key: 'UserId'
+        },
     }
 
 }, {
@@ -147,5 +164,16 @@ Resort.hasMany(User, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
 });
+
+User.belongsTo(User, {
+    foreignKey: 'created_by',
+    as: 'createdBy',
+});
+
+User.belongsTo(User, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy',
+});
+
 
 module.exports = User;

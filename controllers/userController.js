@@ -107,6 +107,7 @@ const getAllHostsController = async (req, res) => {
 
 const createUserController = async (req, res) => {
     const { username, email, password, role, meal_type, resortId, restaurantId, } = req.body;
+    const currentUser = req.user?.UserId;
 
     if (!username || !email || !password || !role || !meal_type) {
         return res.status(400).json({
@@ -123,7 +124,7 @@ const createUserController = async (req, res) => {
 
 
     try {
-        const newUser = await createUser({ username, email, password, role, meal_type, resortId, restaurantId });
+        const newUser = await createUser({ username, email, password, role, meal_type, resortId, restaurantId, created_by: currentUser, updated_by: currentUser });
         res.status(201).json({
             success: true,
             message: `User created successfully as ${role}`,
@@ -141,6 +142,7 @@ const createUserController = async (req, res) => {
 const updateUserController = async (req, res) => {
     const { id } = req.params;
     const { username, email, password, role, status, meal_type, resortId, restaurantId, } = req.body;
+    const currentUser = req.user?.UserId;
 
     if (status && !['Active', 'Inactive'].includes(status)) {
         return res.status(400).json({
@@ -165,8 +167,8 @@ const updateUserController = async (req, res) => {
             status,
             meal_type,
             resortId,
-            restaurantId
-
+            restaurantId,
+            updated_by: currentUser
         });
         res.status(200).json({
             success: true,

@@ -35,6 +35,16 @@ const getUserById = async (id) => {
             {
                 model: Restaurant,
                 as: "restaurant",
+            },
+            {
+                model: User,
+                as: "createdBy",
+                attributes: ['UserId', 'username']
+            },
+            {
+                model: User,
+                as: "updatedBy",
+                attributes: ['UserId', 'username']
             }
         ],
     });
@@ -65,7 +75,7 @@ const getUsersByRole = async (role) => {
     });
 };
 
-const createUser = async ({ username, email, password, role, meal_type, resortId, restaurantId, }) => {
+const createUser = async ({ username, email, password, role, meal_type, resortId, restaurantId, created_by, updated_by }) => {
     // Check if user already exists
     const existingUser = await User.findOne({
         where: {
@@ -92,7 +102,9 @@ const createUser = async ({ username, email, password, role, meal_type, resortId
         role,
         meal_type: meal_type || 'All',
         resortId: resortId || null,
-        restaurantId: restaurantId || null 
+        restaurantId: restaurantId || null ,
+        created_by,
+        updated_by
     });
     
     // Return user with permission details
@@ -101,7 +113,7 @@ const createUser = async ({ username, email, password, role, meal_type, resortId
     });
 };
 
-const updateUser = async (id, { username, email, password, role, status, resortId, restaurantId, meal_type }) => {
+const updateUser = async (id, { username, email, password, role, status, resortId, restaurantId, meal_type, updated_by }) => {
     const user = await getUserById(id);
     if (!user) {
         throw new AppError(404, 'User not found');
@@ -117,7 +129,8 @@ const updateUser = async (id, { username, email, password, role, status, resortI
         status,
         resortId,
         restaurantId,
-        meal_type
+        meal_type,
+        updated_by
     });
     
     // Return updated user with permission details
