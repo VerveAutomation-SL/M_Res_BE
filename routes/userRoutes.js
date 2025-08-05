@@ -11,7 +11,8 @@ const {
     getAllHostsController,
     getAllManagersController,
     getUserStatsController,
-    getActivehostsController
+    getActivehostsController,
+    verifyUserPasswordController
 } = require('../controllers/userController');
 
 // General user management routes
@@ -29,5 +30,8 @@ router.delete('/:id', deleteUserController);
 
 // Active hosts route
 router.get('/active/hosts', getActivehostsController);
+
+// Password verification route
+router.post("/verify/password", verifyUserPasswordController);
 
 module.exports = router;

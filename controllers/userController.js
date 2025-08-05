@@ -7,7 +7,8 @@ const {
     deleteUser,
     getUsersByRole,
     getUserStatistics,
-    getActivehosts
+    getActivehosts,
+    verifyPassword
 } = require('../services/userService');
 
 const getAllUsersController = async (req, res) => {
@@ -236,6 +237,39 @@ const getActivehostsController = async (req, res) => {
     }
 };
 
+const verifyUserPasswordController = async (req, res) => {
+    const { userId, password } = req.body;
+
+    if (!userId || !password) {
+        return res.status(400).json({
+            success: false,
+            message: 'userId and password are required'
+        });
+    }
+
+    try {
+        const isValid = await verifyPassword(userId, password);
+        if (isValid) {
+            res.status(200).json({
+                success: true,
+                message: 'Password is valid'
+            });
+        } else {
+            res.status(401).json({
+                success: false,
+                message: 'invalid credientials'
+            });
+        }
+    } catch (error) {
+        console.error('Error verifying password:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while verifying the password',
+            error: error.message
+        });
+    }
+}
+
 
 module.exports = {
     getAllUsersController,
@@ -247,5 +281,6 @@ module.exports = {
     updateUserController,
     deleteUserController,
     getUserStatsController,
-    getActivehostsController
+    getActivehostsController,
+    verifyUserPasswordController
 };
