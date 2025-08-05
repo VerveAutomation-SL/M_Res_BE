@@ -48,6 +48,18 @@ const getUserById = async (id) => {
 const getUsersByRole = async (role) => {
     return await User.findAll({
         where: { role },
+        include: [
+            {
+                model: Resort,
+                as: "resorts",
+                attributes: ['id', 'name', 'location']
+            },
+            {
+                model: Restaurant,
+                as: "restaurant",
+                attributes: ['id', 'restaurantName', 'status']
+            }
+        ],
         attributes: { exclude: ['password'] },
         order: [['username', 'ASC']]
     });
