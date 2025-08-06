@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const User = require("../models/Users");
 const { generateTokens } = require("./tokenService");
 const AppError = require("../utils/AppError");
-const Permission = require("../models/Permission");
 const { sendPasswordResetEmail } = require("./emailService");
 const crypto = require('crypto');
 const { Op } = require("sequelize");
