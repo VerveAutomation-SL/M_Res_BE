@@ -1,5 +1,4 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const User = require("../models/Users");
 const { generateTokens } = require("./tokenService");
 const AppError = require("../utils/AppError");
@@ -20,7 +19,7 @@ const loginService = async ({ userName, password }) => {
             throw new AppError(401, "Invalid password");
         }
 
-        const userData = {UserId: user.UserId, role: user.role, username: user.username, email: user.email, permissionId: user.PermissionId};
+        const userData = {UserId: user.UserId, role: user.role, username: user.username, email: user.email};
 
         // Generate JWT tokens
         const accessToken = generateTokens(userData); 
