@@ -1,7 +1,8 @@
 const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
-const Permission  = require("./Permission");
+const Resort = require("./resort");
+const Restaurant = require("./restaurant");
 
 const SALT_ROUNDS = 10;
 
@@ -19,7 +20,6 @@ const User = sequelize.define("User", {
     role: {
         type: DataTypes.ENUM("Admin", "Manager", "Host"),
         allowNull: false,
-        defaultValue: "User",
         validate: {
             isIn: {
                 args: [["Admin", "Manager", "Host"]],
@@ -50,15 +50,50 @@ const User = sequelize.define("User", {
             }
         }
     },
-    PermissionId: {
+
+    resortId: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: Permission,
-            key: 'PermissionId'
+            model: Resort,
+            key: 'id'
+        },
+        validate: {
+            isInt: {
+                msg: "Resort ID must be an integer",
+            }
         }
     },
 
+    restaurantId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: Restaurant,
+            key: 'id'
+        },
+    },
+
+    meal_type: {
+        type: DataTypes.ENUM('Breakfast', 'Lunch', 'Dinner', 'All'),
+        allowNull: false,
+        defaultValue: 'All',
+        validate: {
+            isIn: {
+                args: [['Breakfast', 'Lunch', 'Dinner', 'All']],
+                msg: 'Meal type must be either Breakfast, Lunch, Dinner, or All',
+            }
+        }
+    },
+    resetPasswordToken:{
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+
+    resetPasswordExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     status: {
         type: DataTypes.ENUM("Active", "Inactive"),
         allowNull: false,
@@ -71,14 +106,21 @@ const User = sequelize.define("User", {
         }
     },
 
-    resetPasswordToken:{
-        type: DataTypes.STRING,
+    created_by:{
+        type: DataTypes.INTEGER,
         allowNull: true,
+        references: {
+            model: "users",
+            key: 'UserId'
+        },
     },
-
-    resetPasswordExpires: {
-        type: DataTypes.DATE,
+    updated_by: {
+        type: DataTypes.INTEGER,
         allowNull: true,
+        references: {
+            model: "users",
+            key: 'UserId'
+        },
     }
 
 }, {
@@ -98,14 +140,39 @@ const User = sequelize.define("User", {
         }
     }
 })
-Permission.hasMany(User, {
-    foreignKey: 'PermissionId',
-    as: 'users',
+
+User.belongsTo(Restaurant, {
+    foreignKey: 'restaurantId',
+    as: 'restaurant',
 });
 
-User.belongsTo(Permission, {
-    foreignKey: 'PermissionId',
-    as: 'permission'
+Restaurant.hasMany(User, {
+    foreignKey: 'restaurantId',
+    as: 'restaurants',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+
+User.belongsTo(Resort, {
+    foreignKey: 'resortId',
+    as: 'resorts',
+});
+
+Resort.hasMany(User, {
+    foreignKey: 'resortId',
+    as: 'resorts',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+
+User.belongsTo(User, {
+    foreignKey: 'created_by',
+    as: 'createdBy',
+});
+
+User.belongsTo(User, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy',
 });
 
 

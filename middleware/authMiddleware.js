@@ -3,8 +3,8 @@ require("dotenv").config();
 
 function authenticateToken(req, res, next) {
 
-    const token = req.headers['Authorization']?.split(' ')[1];
-    // const token = req.cookies.accessToken;
+    // const token = req.headers['Authorization']?.split(' ')[1];
+    const token = req.cookies.accessToken;
     if (!token) return res.status(401).json({ 
         success: false,
         message: "Access token not found." 

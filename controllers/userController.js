@@ -7,7 +7,8 @@ const {
     deleteUser,
     getUsersByRole,
     getUserStatistics,
-    getActivehosts
+    getActivehosts,
+    verifyPassword
 } = require('../services/userService');
 
 const getAllUsersController = async (req, res) => {
@@ -106,12 +107,13 @@ const getAllHostsController = async (req, res) => {
 };
 
 const createUserController = async (req, res) => {
-    const { username, email, password, role , PermissionId } = req.body;
+    const { username, email, password, role, meal_type, resortId, restaurantId, } = req.body;
+    const currentUser = req.user?.UserId;
 
-    if (!username || !email || !password || !role) {
+    if (!username || !email || !password || !role || !meal_type) {
         return res.status(400).json({
             success: false,
-            message: 'Username, email, password, role  are required'
+            message: 'Username, email, password, role and meal type are required'
         });
     }
     if (!['Admin', 'Manager', 'Host'].includes(role)) {
@@ -123,7 +125,7 @@ const createUserController = async (req, res) => {
 
 
     try {
-        const newUser = await createUser({ username, email, password, role, PermissionId });
+        const newUser = await createUser({ username, email, password, role, meal_type, resortId, restaurantId, created_by: currentUser, updated_by: currentUser });
         res.status(201).json({
             success: true,
             message: `User created successfully as ${role}`,
@@ -140,7 +142,8 @@ const createUserController = async (req, res) => {
 
 const updateUserController = async (req, res) => {
     const { id } = req.params;
-    const { username, email, password, role, status, PermissionId } = req.body;
+    const { username, email, password, role, status, meal_type, resortId, restaurantId, } = req.body;
+    const currentUser = req.user?.UserId;
 
     if (status && !['Active', 'Inactive'].includes(status)) {
         return res.status(400).json({
@@ -162,8 +165,11 @@ const updateUserController = async (req, res) => {
             email, 
             password, 
             role, 
-            PermissionId,
-            status
+            status,
+            meal_type,
+            resortId,
+            restaurantId,
+            updated_by: currentUser
         });
         res.status(200).json({
             success: true,
@@ -233,6 +239,39 @@ const getActivehostsController = async (req, res) => {
     }
 };
 
+const verifyUserPasswordController = async (req, res) => {
+    const { userId, password } = req.body;
+
+    if (!userId || !password) {
+        return res.status(400).json({
+            success: false,
+            message: 'userId and password are required'
+        });
+    }
+
+    try {
+        const isValid = await verifyPassword(userId, password);
+        if (isValid) {
+            res.status(200).json({
+                success: true,
+                message: 'Password is valid'
+            });
+        } else {
+            res.status(200).json({
+                success: false,
+                message: 'invalid credientials'
+            });
+        }
+    } catch (error) {
+        console.error('Error verifying password:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while verifying the password',
+            error: error.message
+        });
+    }
+}
+
 
 module.exports = {
     getAllUsersController,
@@ -244,5 +283,6 @@ module.exports = {
     updateUserController,
     deleteUserController,
     getUserStatsController,
-    getActivehostsController
+    getActivehostsController,
+    verifyUserPasswordController
 };

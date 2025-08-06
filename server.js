@@ -33,7 +33,6 @@ app.use("/tables", require("./routes/tableRoutes"));
 app.use('/analytics', require('./routes/analyticsRoutes'));
 app.use('/reports', require('./routes/reportRoutes'));
 app.use("/users", require("./routes/userRoutes"));
-app.use("/permissions", require("./routes/permissionRoutes"));
 
 app.use("/", (req, res ) => {
   res.status(200).json({

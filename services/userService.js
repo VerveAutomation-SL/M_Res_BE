@@ -1,8 +1,10 @@
 // services/userService.js
 const AppError = require('../utils/AppError');
 const User = require('../models/Users');
-const Permission = require('../models/Permission');
 const { Op } = require('sequelize');
+const Resort = require('../models/resort');
+const Restaurant = require('../models/restaurant');
+const bcrypt = require('bcrypt');
 
 const getAllUsers = async () => {
     const whereClause = {
@@ -13,10 +15,6 @@ const getAllUsers = async () => {
     
     const { rows: users, count } = await User.findAndCountAll({
         where: whereClause,
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
         attributes: { exclude: ['password'] },
         order: [['createdAt', 'DESC']],
     });
@@ -29,11 +27,27 @@ const getAllUsers = async () => {
 
 const getUserById = async (id) => {
     const user = await User.findByPk(id, {
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
-        attributes: { exclude: ['password'] }
+        attributes: { exclude: ['password'] },
+        include: [
+            {
+                model: Resort,
+                as: "resorts",
+            },
+            {
+                model: Restaurant,
+                as: "restaurant",
+            },
+            {
+                model: User,
+                as: "createdBy",
+                attributes: ['UserId', 'username']
+            },
+            {
+                model: User,
+                as: "updatedBy",
+                attributes: ['UserId', 'username']
+            }
+        ],
     });
     
     if (!user) {
@@ -45,16 +59,24 @@ const getUserById = async (id) => {
 const getUsersByRole = async (role) => {
     return await User.findAll({
         where: { role },
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
+        include: [
+            {
+                model: Resort,
+                as: "resorts",
+                attributes: ['id', 'name', 'location']
+            },
+            {
+                model: Restaurant,
+                as: "restaurant",
+                attributes: ['id', 'restaurantName', 'status']
+            }
+        ],
         attributes: { exclude: ['password'] },
         order: [['username', 'ASC']]
     });
 };
 
-const createUser = async ({ username, email, password, role, PermissionId }) => {
+const createUser = async ({ username, email, password, role, meal_type, resortId, restaurantId, created_by, updated_by }) => {
     // Check if user already exists
     const existingUser = await User.findOne({
         where: {
@@ -74,64 +96,46 @@ const createUser = async ({ username, email, password, role, PermissionId }) => 
         }
     }
     
-    // Check if permission exists if provided
-    if (PermissionId) {
-        const permission = await Permission.findByPk(PermissionId);
-        if (!permission) {
-            throw new AppError(404, 'Permission not found');
-        }
-    }
-    
     const user = await User.create({
         username,
         email,
         password,
         role,
-        PermissionId
+        meal_type: meal_type || 'All',
+        resortId: resortId || null,
+        restaurantId: restaurantId || null ,
+        created_by,
+        updated_by
     });
     
     // Return user with permission details
     return await User.findByPk(user.UserId, {
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
         attributes: { exclude: ['password'] }
     });
 };
 
-const updateUser = async (id, { username, email, password, role, status, PermissionId }) => {
+const updateUser = async (id, { username, email, password, role, status, resortId, restaurantId, meal_type, updated_by }) => {
     const user = await getUserById(id);
     if (!user) {
         throw new AppError(404, 'User not found');
     }
     
-    console.log(`Updating user ${user.username} with new data: username=${username}, email=${email}, role=${role}, status=${status}, PermissionId=${PermissionId}`);
-    
-    // Check if permission exists if provided
-    if (PermissionId) {
-        const permission = await Permission.findByPk(PermissionId);
-        if (!permission) {
-            throw new AppError(404, 'Permission not found');
-        }
-    }
-    
-    
+    console.log(`Updating user ${user.username} with new data: username=${username}, email=${email}, role=${role}, status=${status}, resortId=${resortId}, restaurantId=${restaurantId}, meal_type=${meal_type}`);
+
     await user.update({
         username,
         email,
         password,
         role,
         status,
-        PermissionId
+        resortId,
+        restaurantId,
+        meal_type,
+        updated_by
     });
     
     // Return updated user with permission details
     return await User.findByPk(id, {
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
         attributes: { exclude: ['password'] }
     });
 };
@@ -162,10 +166,6 @@ const getUserStatistics = async () => {
 const getUserByEmail = async (email) => {
     return await User.findOne({
         where: { email },
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
         attributes: { exclude: ['password'] }
     });
 };
@@ -173,23 +173,7 @@ const getUserByEmail = async (email) => {
 const getUserByUsername = async (username) => {
     return await User.findOne({
         where: { username },
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
         attributes: { exclude: ['password'] }
-    });
-};
-
-const getUsersByPermission = async (permissionId) => {
-    return await User.findAll({
-        where: { PermissionId: permissionId },
-        include: [{
-            model: Permission,
-            as: 'permission',
-        }],
-        attributes: { exclude: ['password'] },
-        order: [['username', 'ASC']]
     });
 };
 
@@ -198,6 +182,20 @@ const getActivehosts = async () => {
     return await User.count({
         where: { role: 'Host', status: 'Active' }
     });
+};
+
+const verifyPassword = async (userId, password) => {
+    const user = await User.findByPk(userId);
+    if (!user) {
+        throw new AppError(404, 'User not found');
+    }
+    
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+       return false;
+    }
+    
+    return true;
 };
 
 module.exports = {
@@ -210,6 +208,6 @@ module.exports = {
     getUserStatistics,
     getUserByEmail,
     getUserByUsername,
-    getUsersByPermission,
-    getActivehosts
+    getActivehosts,
+    verifyPassword
 };
