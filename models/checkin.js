@@ -48,7 +48,7 @@ const CheckIn = sequelize.define('CheckIns', {
   },
   check_out_date: {
     type: DataTypes.DATEONLY,
-    defaultValue: DataTypes.NOW
+    allowNull: true,
   },
   check_in_time:{
     type: DataTypes.TIME,
