@@ -11,41 +11,41 @@ const MEAL_TIMES ={
 };
 
 // Helper function to get current meal type based on time
-const getCurrentMealType = () => {
-    const now = new Date();
-    const currentTime = now.toTimeString().split(' ')[0]; // Get current time
+// const getCurrentMealType = () => {
+//     const now = new Date();
+//     const currentTime = now.toTimeString().split(' ')[0]; // Get current time
 
-    if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
-        return 'breakfast';
-    }
-    if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
-        return 'lunch';
-    }
-    if (currentTime >= MEAL_TIMES.dinner.start && currentTime <= MEAL_TIMES.dinner.end) {
-        return 'dinner';
-    }
-    // If not in any meal period, return the next upcoming meal
-    if (currentTime < MEAL_TIMES.breakfast.start) {
-        return "breakfast";
-    } else if (currentTime < MEAL_TIMES.lunch.start) {
-        return "lunch";
-    } else if (currentTime < MEAL_TIMES.dinner.start) {
-        return "dinner";
-    } else {
-        return "breakfast"; // After dinner, show next day's breakfast
-    }
-};
+//     if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
+//         return 'breakfast';
+//     }
+//     if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
+//         return 'lunch';
+//     }
+//     if (currentTime >= MEAL_TIMES.dinner.start && currentTime <= MEAL_TIMES.dinner.end) {
+//         return 'dinner';
+//     }
+//     // If not in any meal period, return the next upcoming meal
+//     if (currentTime < MEAL_TIMES.breakfast.start) {
+//         return "breakfast";
+//     } else if (currentTime < MEAL_TIMES.lunch.start) {
+//         return "lunch";
+//     } else if (currentTime < MEAL_TIMES.dinner.start) {
+//         return "dinner";
+//     } else {
+//         return "breakfast"; // After dinner, show next day's breakfast
+//     }
+// };
 
 // Helper funtion to check if current time is wihthin meal time period
-const isWithinMealTime = (mealType) => {
-    const now = new Date();
-    const currentTime = now.toTimeString().split(' ')[0]; // Get current time in HH:MM:SS format
-    const mealPeriod = MEAL_TIMES[mealType];
+// const isWithinMealTime = (mealType) => {
+//     const now = new Date();
+//     const currentTime = now.toTimeString().split(' ')[0]; // Get current time in HH:MM:SS format
+//     const mealPeriod = MEAL_TIMES[mealType];
 
-    if (!mealPeriod) return false; 
+//     if (!mealPeriod) return false; 
 
-    return currentTime >= mealPeriod.start && currentTime <= mealPeriod.end;
-};
+//     return currentTime >= mealPeriod.start && currentTime <= mealPeriod.end;
+// };
 
 // Get check-ins in a resort with optional filtering and ordering
 const getCheckInsinResort = async({where, order}) => {
@@ -135,15 +135,20 @@ const createCheckIn = async(checkInData) => {
             throw new Error('Guest has already checked in for this meal');
         }
 
-        const mealPeriod = MEAL_TIMES[meal_type];
-        if (!mealPeriod) {
-            throw new Error(`Invalid meal type: ${meal_type}.`);
+        const validateMealTypes = ['breakfast', 'lunch', 'dinner'];
+        if (!validateMealTypes.includes(meal_type)) {
+            throw new Error(`Invalid meal type: ${meal_type}. Must be one of: ${validateMealTypes.join(', ')}`);
         }
 
+        // const mealPeriod = MEAL_TIMES[meal_type];
+        // if (!mealPeriod) {
+        //     throw new Error(`Invalid meal type: ${meal_type}.`);
+        // }
+
         // Check if current time is within the meal period
-        if (!isWithinMealTime(meal_type)) {
-            throw new Error(`Check-in for ${meal_type} is only available between ${mealPeriod.start} and ${mealPeriod.end}`);
-        }
+        // if (!isWithinMealTime(meal_type)) {
+        //     throw new Error(`Check-in for ${meal_type} is only available between ${mealPeriod.start} and ${mealPeriod.end}`);
+        // }
 
         //Create new check-in record
         return await CheckIn.create({
@@ -358,8 +363,8 @@ module.exports = {
     hasCheckedInForMeal,
     getCheckInDetails,
     createCheckIn,
-    getCurrentMealType,
-    isWithinMealTime,
+    // getCurrentMealType,
+    // isWithinMealTime,
     getCheckInsinResort,
     checkOutRoom,
     getTodayCheckIns,

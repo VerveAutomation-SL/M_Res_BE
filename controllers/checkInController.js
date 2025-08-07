@@ -76,13 +76,13 @@ const processCheckIn = async (req,res) =>{
         }
 
         // Check if we're within the meal time period
-        if(!checkInService.isWithinMealTime(checkInData.meal_type)){
-            const mealPeriod = checkInService.MEAL_TIMES[checkInData.meal_type];
-            return res.status(400).json({
-                success: false,
-                message: `Check-in for ${checkInData.meal_type} is only available between ${mealPeriod.start} and ${mealPeriod.end}`
-            });
-        }
+        // if(!checkInService.isWithinMealTime(checkInData.meal_type)){
+        //     const mealPeriod = checkInService.MEAL_TIMES[checkInData.meal_type];
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: `Check-in for ${checkInData.meal_type} is only available between ${mealPeriod.start} and ${mealPeriod.end}`
+        //     });
+        // }
 
         const checkin = await checkInService.createCheckIn(checkInData);
 
@@ -108,12 +108,12 @@ const processCheckIn = async (req,res) =>{
             });
         }
 
-        if(error.message.includes('not available at this time')){
-            return res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
+        // if(error.message.includes('not available at this time')){
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: error.message
+        //     });
+        // }
 
         return res.status(500).json({
             success: false,
