@@ -1,6 +1,5 @@
 const AppError = require('../utils/AppError');
 const Restaurant = require('../models/restaurant');
-const DiningTable = require('../models/table');
 const Resort = require('../models/resort');
 const { getResortById } = require('./resortService');
 
