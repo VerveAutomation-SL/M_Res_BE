@@ -1,5 +1,5 @@
 const ExcelJS = require("exceljs");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');

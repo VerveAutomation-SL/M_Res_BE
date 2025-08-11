@@ -29,7 +29,6 @@ app.use('/checkins', require('./routes/checkInRoutes'));
 app.use("/resorts", require("./routes/resortRoutes"));
 app.use("/rooms", require("./routes/roomRoutes"));
 app.use("/restaurants", require("./routes/restaurantRoutes"));
-app.use("/tables", require("./routes/tableRoutes"));
 app.use('/analytics', require('./routes/analyticsRoutes'));
 app.use('/reports', require('./routes/reportRoutes'));
 app.use("/users", require("./routes/userRoutes"));
