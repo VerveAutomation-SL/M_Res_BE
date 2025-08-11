@@ -12,15 +12,19 @@ require("dotenv").config();
 const loginService = async ({ userName, password }) => {
 
         // Find Admin by username
-        const user = await User.findOne({ where: { username: userName } });
+        const user = await User.findOne({ where: { username: userName} });
         if (!user) {
             throw new AppError(404, `User not found with username: ${userName}`);
         }
 
+        // check if ther use id active or not
+        if (user.status == "Inactive") {
+            throw new AppError(403, "Your account is inactive. Please contact admin support.");
+        }
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new AppError(401, "Invalid password");
+            throw new AppError(401, "Invalid Credentials");
         }
 
         const userData = {UserId: user.UserId, role: user.role, username: user.username, email: user.email};

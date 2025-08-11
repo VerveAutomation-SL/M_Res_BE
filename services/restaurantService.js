@@ -7,10 +7,6 @@ const getAllRestaurants = async () => {
     return await Restaurant.findAll({
         include: [
             {
-                model: DiningTable,
-                as: "diningTables",
-            },
-            {
                 model: Resort,
                 as: "resort",
                 attributes: ['id', 'name', 'location'],
@@ -21,10 +17,6 @@ const getAllRestaurants = async () => {
 
 const getRestaurantById = async (id) => {
     const restaurant = await Restaurant.findByPk(id, {
-        include: [{
-            model: DiningTable,
-            as: "diningTables"
-        }]
     });
     if (!restaurant) {
         throw new AppError(404, 'Restaurant not found');
