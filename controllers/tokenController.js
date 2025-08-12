@@ -1,9 +1,7 @@
 const {generateTokens, verifyAccessToken} = require("../services/tokenService");
 
 const getTokenController = (req, res) => {
-    // const { accesstoken } = req.body;\
-    const accessToken  = req.cookies.accessToken;
-    // const accesstoken = req.headers['Authorization']?.split(' ')[1];
+    const accessToken = req.headers['Authorization']?.split(' ')[1] || req.cookies.accessToken;
 
     console.log("Access Token:", accessToken);
 
