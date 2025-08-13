@@ -56,14 +56,67 @@ const generateExcelReportController = async (req, res) => {
 }
 
 const getPreviewDataController = async (req, res) => {
-    const { checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status } = req.body || {};
+    const { 
+        checkinStartDate, 
+        checkinEndDate, 
+        checkoutStartDate, 
+        checkoutEndDate, 
+        resort_id, 
+        outlet_name, 
+        room_id, 
+        table_number, 
+        meal_type, 
+        meal_plan, 
+        status ,
+        page = 1,
+        limit = 20
+    } = req.body || {};
 
     try {
-        const previewData = await getPreviewDataService({checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status });
-        
+
+        // Validate pagination parameters
+        const validatedPage = Math.max(1, parseInt(page) || 1);
+        const validatedLimit = Math.min(100, Math.max(1, parseInt(limit) || 20)); // Cap at 100 items per page
+
+        const result = await getPreviewDataService({
+            checkinStartDate, 
+            checkinEndDate, 
+            checkoutStartDate, 
+            checkoutEndDate, 
+            resort_id, 
+            outlet_name, 
+            room_id, 
+            table_number, 
+            meal_type, 
+            meal_plan, 
+            status,
+            page : validatedPage,
+            limit : validatedLimit
+        });
+
         res.status(200).json({
             success: true,
-            data: previewData
+            data: result.data,
+            pagination: result.pagination,
+
+            meta:{
+                filters:{
+                    checkinStartDate,
+                    checkinEndDate,
+                    checkoutStartDate,
+                    checkoutEndDate,
+                    resort_id,
+                    outlet_name,
+                    room_id,
+                    table_number,
+                    meal_type,
+                    meal_plan,
+                    status
+                },
+                requestedAt: new Date().toISOString(),
+                requestedPage: validatedPage,
+                requestedLimit: validatedLimit
+            }
         });
     } catch (error) {
         console.error('[getPreviewDataController] Error fetching preview data:', error);
@@ -71,7 +124,15 @@ const getPreviewDataController = async (req, res) => {
             success: false,
             message: 'Failed to fetch preview data',
             error: error.message,
-            data: []
+            data: [],
+            pagination:{
+                currentPage:1,
+                totalPages:0,
+                totalCount:0,
+                pageSize:parseInt(limit) || 20,
+                hasNextPage: false,
+                hasPrevPage: false
+            }
         });
     }
 }

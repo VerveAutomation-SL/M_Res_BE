@@ -71,6 +71,47 @@ const getCheckInsinResort = async({where, order}) => {
     }
 };
 
+// Get check-ins with pagination and filtering
+const getCheckInsinResortWithCount = async (options = {}) => {
+    try {
+        const { where, order, offset, limit } = options;
+
+        const queryOptions = {
+            include: [
+                {
+                    model: Room,
+                    as: 'Room',
+                    attributes: ['room_number']
+                },
+                {
+                    model: Resort,
+                    as: 'Resort',
+                    attributes: ['name']
+                }
+            ],
+            where: where || {},
+            order: order || [['createdAt', 'DESC']],
+            offset: parseInt(offset) || 0,
+            limit: parseInt(limit) || 20
+        };
+
+        console.log('[getCheckInsinResortWithCount] Query options:', queryOptions);
+
+        const result = await CheckIn.findAndCountAll(queryOptions);
+        
+        console.log(`[getCheckInsinResortWithCount] Found ${result.rows.length} records out of ${result.count} total`);
+        
+        return {
+            data: result.rows,
+            totalCount: result.count
+        };
+
+    } catch (error) {
+        console.error('[getCheckInsinResortWithCount] Error:', error);
+        throw error;
+    }
+};
+
 
 // Get all check-ins for a resort
 const getCheckins = async(resortId, date = new Date()) => {
@@ -366,6 +407,7 @@ module.exports = {
     // getCurrentMealType,
     // isWithinMealTime,
     getCheckInsinResort,
+    getCheckInsinResortWithCount,
     checkOutRoom,
     getTodayCheckIns,
     getTodayAllCheckIns,
