@@ -1,17 +1,9 @@
 const {generateTokens, verifyAccessToken} = require("../services/tokenService");
 
 const getTokenController = (req, res) => {
-    const accessToken = req.headers['authorization']?.split(' ')[1];
-
-    console.log("Access Token:", accessToken);
-
-
-    if (!accessToken) {
-        return res.status(401).json({ message: "Access token not found." });
-    }
 
     try {
-        const decoded = verifyAccessToken(accessToken);
+        const decoded = req.user;
         const userData = {userId: decoded.UserId, role: decoded.role, username: decoded.username, email: decoded.email}
         // const accesstoken = generateTokens(userData);
 
