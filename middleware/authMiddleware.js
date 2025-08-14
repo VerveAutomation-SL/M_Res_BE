@@ -3,7 +3,10 @@ require("dotenv").config();
 
 function authenticateToken(req, res, next) {
 
+    console.log("Middleware Request headers: ", req.headers);
+
     const token = req.headers['authorization']?.split(' ')[1];
+    console.log("Middleware Token:", token);
     if (!token) return res.status(401).json({ 
         success: false,
         message: "Access token not found." 
