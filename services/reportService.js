@@ -1,6 +1,6 @@
 const ExcelJS = require("exceljs");
 const { Op } = require("sequelize");
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
 const PdfPrinter = require('pdfmake');
@@ -244,111 +244,111 @@ const generateExcelReportservice = ({
   });
 };
 
-const generateExcelToPDFReportservice = async ({
-  checkinStartDate,
-  checkinEndDate,
-  checkoutStartDate,
-  checkoutEndDate,
-  resort_id,
-  outlet_name,
-  room_id,
-  table_number,
-  meal_type,
-  meal_plan,
-  status,
-}) => {
-  try {
-    // Generate Excel report
-    const excelFilePath = await generateExcelReportservice({
-      checkinStartDate,
-      checkinEndDate,
-      checkoutStartDate,
-      checkoutEndDate,
-      resort_id,
-      outlet_name,
-      room_id,
-      table_number,
-      meal_type,
-      meal_plan,
-      status,
-    });
+// const generateExcelToPDFReportservice = async ({
+//   checkinStartDate,
+//   checkinEndDate,
+//   checkoutStartDate,
+//   checkoutEndDate,
+//   resort_id,
+//   outlet_name,
+//   room_id,
+//   table_number,
+//   meal_type,
+//   meal_plan,
+//   status,
+// }) => {
+//   try {
+//     // Generate Excel report
+//     const excelFilePath = await generateExcelReportservice({
+//       checkinStartDate,
+//       checkinEndDate,
+//       checkoutStartDate,
+//       checkoutEndDate,
+//       resort_id,
+//       outlet_name,
+//       room_id,
+//       table_number,
+//       meal_type,
+//       meal_plan,
+//       status,
+//     });
 
-    if (!excelFilePath) {
-      throw new AppError(404, "Excel file path is not defined");
-    }
+//     if (!excelFilePath) {
+//       throw new AppError(404, "Excel file path is not defined");
+//     }
 
-    // Generate HTML from Excel
-    const { headers, rows } = await generateExcelToHtml(excelFilePath);
+//     // Generate HTML from Excel
+//     const { headers, rows } = await generateExcelToHtml(excelFilePath);
 
-    const pdfPath = path.join(__dirname, "../reports/report.pdf");
-    if (!pdfPath) {
-      throw new AppError(404, "PDF file path is not defined");
-    }
+//     const pdfPath = path.join(__dirname, "../reports/report.pdf");
+//     if (!pdfPath) {
+//       throw new AppError(404, "PDF file path is not defined");
+//     }
 
-    // Generate PDF from HTML
-    await generatePDFReportFromHtml({ headers, rows }, pdfPath);
+//     // Generate PDF from HTML
+//     await generatePDFReportFromHtml({ headers, rows }, pdfPath);
 
-    const pdfBuffer = fs.readFileSync(pdfPath);
+//     const pdfBuffer = fs.readFileSync(pdfPath);
 
-    fs.unlinkSync(excelFilePath);
-    fs.unlinkSync(pdfPath);
+//     fs.unlinkSync(excelFilePath);
+//     fs.unlinkSync(pdfPath);
 
-    return pdfBuffer;
-  } catch (err) {
-    throw new Error(`Failed to generate PDF: ${err.message}`);
-  }
-};
+//     return pdfBuffer;
+//   } catch (err) {
+//     throw new Error(`Failed to generate PDF: ${err.message}`);
+//   }
+// };
 
-const generateExcelToHtml = async (excelFilePath) => {
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(excelFilePath);
-  const worksheet = workbook.worksheets[0];
+// const generateExcelToHtml = async (excelFilePath) => {
+//   const workbook = new ExcelJS.Workbook();
+//   await workbook.xlsx.readFile(excelFilePath);
+//   const worksheet = workbook.worksheets[0];
 
-  const headers = [];
-  const rows = [];
+//   const headers = [];
+//   const rows = [];
 
-  worksheet.eachRow((row, rowNumber) => {
-    const cells = row.values.slice(1); // skip index 0
-    if (cells.length === 0) return; // skip empty rows
+//   worksheet.eachRow((row, rowNumber) => {
+//     const cells = row.values.slice(1); // skip index 0
+//     if (cells.length === 0) return; // skip empty rows
 
-    const htmlRow = cells.map((cell) => `<td>${cell}</td>`).join("");
+//     const htmlRow = cells.map((cell) => `<td>${cell}</td>`).join("");
 
-    if (rowNumber === 1) {
-      headers.push(...cells.map((cell) => `<th>${cell}</th>`));
-    } else {
-      rows.push(`<tr>${htmlRow}</tr>`);
-    }
-  });
+//     if (rowNumber === 1) {
+//       headers.push(...cells.map((cell) => `<th>${cell}</th>`));
+//     } else {
+//       rows.push(`<tr>${htmlRow}</tr>`);
+//     }
+//   });
 
-  return { headers, rows };
-};
+//   return { headers, rows };
+// };
 
-const generatePDFReportFromHtml = async ({ headers, rows }, pdfPath) => {
-  try {
-    const templatePath = path.join(__dirname, "../reports/template.html");
-    let html = fs.readFileSync(templatePath, "utf8");
+// const generatePDFReportFromHtml = async ({ headers, rows }, pdfPath) => {
+//   try {
+//     const templatePath = path.join(__dirname, "../reports/template.html");
+//     let html = fs.readFileSync(templatePath, "utf8");
 
-    html = html
-      .replace("{{TABLE_HEADERS}}", headers.join(""))
-      .replace("{{TABLE_ROWS}}", rows.join("\n"));
+//     html = html
+//       .replace("{{TABLE_HEADERS}}", headers.join(""))
+//       .replace("{{TABLE_ROWS}}", rows.join("\n"));
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+//     const browser = await puppeteer.launch();
+//     const page = await browser.newPage();
 
-    await page.setContent(html, { waitUntil: "networkidle0" });
-    await page.pdf({
-      path: pdfPath,
-      format: "A3",
-      landscape: true,
-      printBackground: true,
-    });
+//     await page.setContent(html, { waitUntil: "networkidle0" });
+//     await page.pdf({
+//       path: pdfPath,
+//       format: "A3",
+//       landscape: true,
+//       printBackground: true,
+//     });
 
-    await browser.close();
-  } catch (err) {
-    console.error("PDF generation error:", err);
-    throw new AppError(`Failed to generate PDF: ${err.message}`);
-  }
-};
+//     await browser.close();
+//   } catch (err) {
+//     console.error("PDF generation error:", err);
+//     throw new AppError(`Failed to generate PDF: ${err.message}`);
+//   }
+// };
 
 const generatePdfReportservice = ({
   checkinStartDate,
@@ -703,7 +703,6 @@ const setFilters = ({
 
 module.exports = {
   getPreviewDataService,
-  generateExcelToPDFReportservice,
-  generateExcelReportservice,
   generatePdfReportservice,
+  generateExcelReportservice
 };

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { generateExcelReportController, generatePDFReportController, getPreviewDataController, generatePdfReport } = require('../controllers/reportController');
+const { generateExcelReportController, getPreviewDataController, generatePdfReport } = require('../controllers/reportController');
 
 router.post("/excel", generateExcelReportController);
 router.post("/pdf", generatePdfReport);
