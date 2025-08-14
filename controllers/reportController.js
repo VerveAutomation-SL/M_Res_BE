@@ -1,6 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 
-const {generateExcelToPDFReportservice, generateExcelReportservice,getPreviewDataService } = require('../services/reportService');
+
+const {generateExcelToPDFReportservice, generateExcelReportservice,getPreviewDataService, generatePdfReportservice } = require('../services/reportService');
 
 const generatePDFReportController = async (req, res) => {
     const { checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status } = req.body || {};
@@ -137,8 +139,93 @@ const getPreviewDataController = async (req, res) => {
     }
 }
 
+const generatePdfReport = async (req, res) => {
+    
+    try {
+    const {
+      checkinStartDate,
+      checkinEndDate,
+      checkoutStartDate,
+      checkoutEndDate,
+      resort_id,
+      outlet_name,
+      table_number,
+      meal_type,
+      room_id,
+      meal_plan,
+      status,
+    } = req.body;
+
+    // Call your PDF generation service
+    const pdfPath = await generatePdfReportservice({
+      checkinStartDate,
+      checkinEndDate,
+      checkoutStartDate,
+      checkoutEndDate,
+      resort_id,
+      outlet_name,
+      table_number,
+      meal_type,
+      room_id,
+      meal_plan,
+      status,
+    });
+
+    // Check if file exists
+    if (!fs.existsSync(pdfPath)) {
+      return res.status(500).json({
+        success: false,
+        message: 'PDF file generation failed'
+      });
+    }
+
+    // Get file stats for content length
+    const stat = fs.statSync(pdfPath);
+    const filename = path.basename(pdfPath);
+
+    // Set response headers for file download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', stat.size);
+
+    // Create read stream and pipe to response
+    const fileStream = fs.createReadStream(pdfPath);
+    
+    fileStream.pipe(res);
+
+    // Clean up - delete the file after sending (optional)
+    fileStream.on('end', () => {
+      fs.unlink(pdfPath, (err) => {
+        if (err) console.error('Error deleting temp PDF file:', err);
+      });
+    });
+
+    fileStream.on('error', (err) => {
+      console.error('Error reading PDF file:', err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: 'Error downloading PDF file'
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to generate PDF report',
+        error: error.message
+      });
+    }
+  }
+};
+
 module.exports = {
     generateExcelReportController,
     generatePDFReportController,
-    getPreviewDataController
+    getPreviewDataController,
+    generatePdfReport
 };

@@ -3,11 +3,22 @@ const { Op } = require("sequelize");
 const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
+const PdfPrinter = require('pdfmake');
+
 const {
   getCheckInsinResort,
   getCheckInsinResortWithCount,
 } = require("../services/checkInService");
 const AppError = require("../utils/AppError");
+
+const fonts = {
+  Helvetica: {
+    normal: 'Helvetica',
+    bold: 'Helvetica-Bold',
+    italics: 'Helvetica-Oblique',
+    bolditalics: 'Helvetica-BoldOblique'
+  }
+};
 
 const getPreviewDataService = async ({
   checkinStartDate,
@@ -339,6 +350,265 @@ const generatePDFReportFromHtml = async ({ headers, rows }, pdfPath) => {
   }
 };
 
+const generatePdfReportservice = ({
+  checkinStartDate,
+  checkinEndDate,
+  checkoutStartDate,
+  checkoutEndDate,
+  resort_id,
+  outlet_name,
+  table_number,
+  meal_type,
+  room_id,
+  meal_plan,
+  status,
+}) => {
+  return new Promise((resolve, reject) => {
+    const printer = new PdfPrinter(fonts);
+
+    // Build your filters
+    const { where, order } = setFilters({
+      checkinStartDate,
+      checkinEndDate,
+      checkoutStartDate,
+      checkoutEndDate,
+      resort_id,
+      outlet_name,
+      room_id,
+      table_number,
+      meal_type,
+      meal_plan,
+      status,
+    });
+    console.log('Fetching all check-ins with filters:', where, order);
+
+    // Fetch your check-ins data
+    getCheckInsinResort({ where, order })
+      .then((response) => {
+        const checkIns = response.map((checkIn) => {
+          const d = checkIn.dataValues;
+          return {
+            id: d.id,
+            room_number: d.Room ? d.Room.dataValues.room_number : '-',
+            resort_name: d.Resort ? d.Resort.dataValues.name : '-',
+            outlet_name: d.outlet_name,
+            table_number: d.table_number,
+            meal_type: d.meal_type,
+            meal_plan: d.meal_plan,
+            check_in_date: d.check_in_date,
+            check_in_time: d.check_in_time,
+            status: d.status,
+            check_out_date: d.check_out_date || '-',
+            check_out_time: d.check_out_time || '-',
+            checkout_remarks: d.checkout_remarks ? 
+              (d.checkout_remarks.length > 50 ? 
+                d.checkout_remarks.substring(0, 50) + '...' : 
+                d.checkout_remarks) : '-',
+          };
+        });
+
+        // Build table body (header + data rows)
+        const tableBody = [
+          [
+            { text: 'ID', style: 'tableHeader', alignment: 'center' },
+            { text: 'Room Number', style: 'tableHeader', alignment: 'center' },
+            { text: 'Resort Name', style: 'tableHeader', alignment: 'left' },
+            { text: 'Outlet Name', style: 'tableHeader', alignment: 'left' },
+            { text: 'Table Number', style: 'tableHeader', alignment: 'center' },
+            { text: 'Meal Type', style: 'tableHeader', alignment: 'left' },
+            { text: 'Meal Plan', style: 'tableHeader', alignment: 'left' },
+            { text: 'Check-In Date', style: 'tableHeader', alignment: 'center' },
+            { text: 'Check-In Time', style: 'tableHeader', alignment: 'center' },
+            { text: 'Status', style: 'tableHeader', alignment: 'center' },
+            { text: 'Check-Out Date', style: 'tableHeader', alignment: 'center' },
+            { text: 'Check-Out Time', style: 'tableHeader', alignment: 'center' },
+            { text: 'Checkout Remarks', style: 'tableHeader', alignment: 'left' },
+          ],
+          // Map your dynamic data here, with formatting and styling
+          ...checkIns.map((row, rowIndex) =>
+            [
+              { text: row.id.toString(), alignment: 'center', fontSize: 9 },
+              { text: row.room_number, alignment: 'center', fontSize: 9 },
+              { text: row.resort_name, alignment: 'left', fontSize: 9 },
+              { text: row.outlet_name, alignment: 'left', fontSize: 9 },
+              { text: row.table_number.toString(), alignment: 'center', fontSize: 9 },
+              { text: row.meal_type, alignment: 'left', fontSize: 9 },
+              { text: row.meal_plan, alignment: 'left', fontSize: 9 },
+              { text: row.check_in_date, alignment: 'center', fontSize: 9 },
+              { text: row.check_in_time, alignment: 'center', fontSize: 9 },
+              { text: row.status, alignment: 'center', fontSize: 9 },
+              { text: row.check_out_date, alignment: 'center', fontSize: 9 },
+              { text: row.check_out_time, alignment: 'center', fontSize: 9 },
+              { text: row.checkout_remarks, alignment: 'left', fontSize: 8 },
+            ].map((cell) => ({
+              ...cell,
+              fillColor: rowIndex % 2 === 0 ? null : '#F8F9FA', // Zebra stripes
+            }))
+          ),
+        ];
+
+        // Define the PDF document structure
+        const docDefinition = {
+          pageSize: 'A3',
+          pageOrientation: 'landscape',
+          pageMargins: [20, 20, 20, 20],
+          content: [
+            // ===== HEADER =====
+            {
+              columns: [
+                // {
+                //   image: 'logo',
+                //   width: 60,
+                // },
+                {
+                  stack: [
+                    { text: 'Guest Check-In Report', style: 'header' },
+                    // {
+                    //   text: `From: ${startDate}  To: ${endDate}`,
+                    //   style: 'subheader'
+                    // },
+                    {
+                      text: `Generated on: ${new Date().toLocaleString()}`,
+                      style: 'meta'
+                    },
+                    // {
+                    //   text: `Generated by: ${generatedBy}`,
+                    //   style: 'meta'
+                    // }
+                  ],
+                  width: '*'
+                }
+              ],
+              margin: [0, 0, 0, 20]
+            },
+            // ===== DETAILED TABLE =====
+            {
+              table: {
+                headerRows: 1,
+                widths: ['3%', '6%', '10%', '12%', '6%', '7%', '7%', '7%', '7%', '7%', '7%', '7%', '14%'],
+                body: tableBody,
+              },
+              width: '100%',
+              layout: {
+                fillColor: (rowIndex) => (rowIndex === 0 ? '#2F4454' : null),
+                hLineWidth: (i, node) => (i === 0 || i === node.table.body.length ? 2 : 0.8),
+                vLineWidth: () => 0.8,
+                hLineColor: (i, node) =>
+                  i === 0 || i === node.table.body.length ? '#2F4454' : '#dee2e6',
+                vLineColor: () => '#dee2e6',
+                paddingLeft: () => 10,
+                paddingRight: () => 10,
+                paddingTop: () => 15,
+                paddingBottom: () => 15,
+              },
+            },
+            // ===== SUMMARY SECTION =====
+            {
+              style: 'summaryTable',
+              table: {
+                widths: ['25%', '25%', '25%', '25%'],
+                body: [
+                  [
+                    { text: 'Total Check-Ins', style: 'summaryHeader' },
+                    //{ text: 'Average Stay Duration', style: 'summaryHeader' },
+                    //{ text: 'Occupancy Rate', style: 'summaryHeader' },
+                    //{ text: 'Returning Guests', style: 'summaryHeader' }
+                  ],
+                  [
+                    { text: checkIns.length.toString(), style: 'summaryValue' },
+                    //{ text: avgStayDuration + ' days', style: 'summaryValue' },
+                    //{ text: occupancyRate + '%', style: 'summaryValue' },
+                    //{ text: returningGuests.toString(), style: 'summaryValue' }
+                  ]
+                ]
+              },
+              layout: 'lightHorizontalLines',
+              margin: [0, 0, 0, 20]
+            },
+
+          ],
+          styles: {
+            header: {
+              fontSize: 22,
+              bold: true,
+              color: '#2F4454',
+              margin: [0, 0, 0, 8]
+            },
+            subheader: {
+              fontSize: 12,
+              bold: true,
+              margin: [0, 0, 0, 2]
+            },
+            meta: {
+              fontSize: 10,
+              color: '#666',
+              margin: [0, 0, 0, 2]
+            },
+            summaryTable: {
+              margin: [0, 0, 0, 10]
+            },
+            summaryHeader: {
+              fontSize: 11,
+              bold: true,
+              fillColor: '#2F4454',
+              color: 'white',
+              alignment: 'center',
+              margin: [0, 5, 0, 5]
+            },
+            summaryValue: {
+              fontSize: 11,
+              bold: true,
+              alignment: 'center',
+              margin: [0, 5, 0, 5]
+            },
+            tableHeader: {
+              bold: true,
+              fontSize: 10,
+              color: 'white'
+            },
+            tableCell: {
+              fontSize: 9,
+              color: '#212529'
+            },
+            sectionHeader: {
+              fontSize: 14,
+              bold: true,
+              color: '#2F4454'
+            },
+            notes: {
+              fontSize: 10,
+              color: '#444'
+            }
+          },
+          defaultStyle: {
+            font: 'Helvetica'
+          }
+        };
+
+
+        const pdfDoc = printer.createPdfKitDocument(docDefinition);
+
+        const outputFile = `./reports/checkin_report_${Date.now()}.pdf`;
+        const stream = fs.createWriteStream(outputFile);
+
+        pdfDoc.pipe(stream);
+
+        pdfDoc.end();
+
+        stream.on('finish', () => {
+          resolve(outputFile);
+        });
+
+        stream.on('error', (err) => {
+          reject(err);
+        });
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 const setFilters = ({
   checkinStartDate,
   checkinEndDate,
@@ -435,4 +705,5 @@ module.exports = {
   getPreviewDataService,
   generateExcelToPDFReportservice,
   generateExcelReportservice,
+  generatePdfReportservice,
 };
