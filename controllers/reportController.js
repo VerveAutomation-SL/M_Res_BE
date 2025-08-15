@@ -132,6 +132,8 @@ const generatePdfReport = async (req, res) => {
       status,
     } = req.body;
 
+    const generatedBy = req.user ? req.user.email : 'Unknown';
+
     // Call your PDF generation service
     const pdfPath = await generatePdfReportservice({
       checkinStartDate,
@@ -145,6 +147,7 @@ const generatePdfReport = async (req, res) => {
       room_id,
       meal_plan,
       status,
+      generatedBy
     });
 
     // Check if file exists
