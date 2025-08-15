@@ -4,27 +4,6 @@ const path = require('path');
 
 const {getPreviewDataService, generatePdfReportservice, generateExcelReportservice } = require('../services/reportService');
 
-// const generatePDFReportController = async (req, res) => {
-//     const { checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status } = req.body || {};
-
-//     try {
-//         const pdfBuffer = await generateExcelToPDFReportservice({checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status });
-//         const now = new Date();
-//         const formatted = now.toISOString().replace(/[:.]/g, '-'); // e.g. 2025-07-18T09-14-22-123Z
-//         const filename = `checkin_report_${formatted}.pdf`;
-//         res.setHeader('Content-Type', 'application/pdf');
-//         res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-//         res.send(pdfBuffer);
-//     } catch (error) {
-//         console.error('[generatePDFReportController] Error generating PDF report:', error);
-//         res.status(error.statusCode || 500).json({
-//             success: false,
-//             message: 'Failed to generate PDF report',
-//             error: error.message
-//         });
-//     }
-// }
-
 const generateExcelReportController = async (req, res) => {
 
     const { checkinStartDate, checkinEndDate, checkoutStartDate, checkoutEndDate, resort_id, outlet_name, room_id, table_number, meal_type, meal_plan, status } = req.body || {};
@@ -45,8 +24,7 @@ const generateExcelReportController = async (req, res) => {
         console.error('Error generating Excel report:', error);
         res.status(error.statusCode || 500).json({
             success: false,
-            message: 'Failed to generate Excel report',
-            error: error.message
+            message: error.message || 'Failed to generate Excel report',
         });
     }
     finally {
@@ -121,12 +99,10 @@ const getPreviewDataController = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('[getPreviewDataController] Error fetching preview data:', error);
+        console.error(error);
         res.status(error.statusCode || 500).json({
             success: false,
-            message: 'Failed to fetch preview data',
-            error: error.message,
-            data: [],
+            message: error.message,
             pagination:{
                 currentPage:1,
                 totalPages:0,
@@ -211,15 +187,10 @@ const generatePdfReport = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('PDF generation error:', error);
-    
-    if (!res.headersSent) {
-      res.status(500).json({
-        success: false,
-        message: 'Failed to generate PDF report',
-        error: error.message
-      });
-    }
+    res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Failed to generate Excel report',
+    });
   }
 };
 

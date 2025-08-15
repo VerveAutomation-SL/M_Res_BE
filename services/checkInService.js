@@ -2,6 +2,7 @@ const CheckIn = require('../models/checkin');
 const Resort = require('../models/resort');
 const Room = require('../models/room');
 const {Op} = require('sequelize');
+const AppError = require('../utils/AppError');
 
 // Meal time periods
 const MEAL_TIMES ={
@@ -95,8 +96,6 @@ const getCheckInsinResortWithCount = async (options = {}) => {
             limit: parseInt(limit) || 20
         };
 
-        console.log('[getCheckInsinResortWithCount] Query options:', queryOptions);
-
         const result = await CheckIn.findAndCountAll(queryOptions);
         
         console.log(`[getCheckInsinResortWithCount] Found ${result.rows.length} records out of ${result.count} total`);
@@ -108,7 +107,7 @@ const getCheckInsinResortWithCount = async (options = {}) => {
 
     } catch (error) {
         console.error('[getCheckInsinResortWithCount] Error:', error);
-        throw error;
+        throw new AppError(500, 'Failed to fetch check-ins with count');
     }
 };
 
