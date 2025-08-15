@@ -9,6 +9,7 @@ const {
   getCheckInsinResortWithCount,
 } = require("../services/checkInService");
 const AppError = require("../utils/AppError");
+const { stack } = require("sequelize/lib/utils");
 
 const fonts = {
   Helvetica: {
@@ -199,20 +200,20 @@ const generateExcelReportservice = ({
             id: checkIn.id,
             room_number: checkIn.Room
               ? checkIn.Room.dataValues.room_number
-              : "N/A",
+              : "-",
             resort_name: checkIn.Resort
               ? checkIn.Resort.dataValues.name
-              : "N/A",
+              : "-",
             outlet_name: checkIn.outlet_name,
             table_number: checkIn.table_number,
             meal_type: checkIn.meal_type,
             meal_plan: checkIn.meal_plan,
             check_in_date: checkIn.check_in_date,
             check_in_time: checkIn.check_in_time,
-            check_out_date: checkIn.check_out_date || "N/A",
-            check_out_time: checkIn.check_out_time || "N/A",
+            check_out_date: checkIn.check_out_date || "-",
+            check_out_time: checkIn.check_out_time || "-",
             status: checkIn.status,
-            checkout_remarks: checkIn.checkout_remarks || "N/A",
+            checkout_remarks: checkIn.checkout_remarks || "-",
           };
         });
 
@@ -241,7 +242,7 @@ const generateExcelReportservice = ({
             .map((row) => row.values.slice(1)),
         });
 
-        const filePath = `./reports/checkin_report_${Date.now()}.xlsx`;
+        const filePath = `./assets/checkin_report_${Date.now()}.xlsx`;
         workbook.xlsx
           .writeFile(filePath)
           .then(() => {
@@ -302,22 +303,50 @@ const generatePdfReportservice = ({
 
         const checkIns = response.map((checkIn) => {
           const d = checkIn.dataValues;
+          
+          // Format dates properly
+          const formatDate = (dateStr) => {
+            if (!dateStr || dateStr === '-') return '-';
+            try {
+              return new Date(dateStr).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+              });
+            } catch {
+              return dateStr;
+            }
+          };
+
+          const formatTime = (timeStr) => {
+            if (!timeStr || timeStr === '-') return '-';
+            try {
+              return new Date(`1970-01-01T${timeStr}`).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              });
+            } catch {
+              return timeStr;
+            }
+          };
+
           return {
             id: d.id,
             room_number: d.Room ? d.Room.dataValues.room_number : '-',
             resort_name: d.Resort ? d.Resort.dataValues.name : '-',
-            outlet_name: d.outlet_name,
-            table_number: d.table_number,
-            meal_type: d.meal_type,
-            meal_plan: d.meal_plan,
-            check_in_date: d.check_in_date,
-            check_in_time: d.check_in_time,
-            status: d.status,
-            check_out_date: d.check_out_date || '-',
-            check_out_time: d.check_out_time || '-',
+            outlet_name: d.outlet_name || '-',
+            table_number: d.table_number || '-',
+            meal_type: d.meal_type || '-',
+            meal_plan: d.meal_plan || '-',
+            check_in_date: formatDate(d.check_in_date),
+            check_in_time: formatTime(d.check_in_time),
+            status: d.status || '-',
+            check_out_date: formatDate(d.check_out_date),
+            check_out_time: formatTime(d.check_out_time),
             checkout_remarks: d.checkout_remarks ? 
-              (d.checkout_remarks.length > 50 ? 
-                d.checkout_remarks.substring(0, 50) + '...' : 
+              (d.checkout_remarks.length > 80 ? 
+                d.checkout_remarks.substring(0, 80) + '...' : 
                 d.checkout_remarks) : '-',
           };
         });
@@ -337,27 +366,31 @@ const generatePdfReportservice = ({
             { text: 'Status', style: 'tableHeader', alignment: 'center' },
             { text: 'Check-Out Date', style: 'tableHeader', alignment: 'center' },
             { text: 'Check-Out Time', style: 'tableHeader', alignment: 'center' },
-            { text: 'Checkout Remarks', style: 'tableHeader', alignment: 'left' },
+            { text: 'Checkout Remarks', style: 'tableHeader', alignment: 'center' },
           ],
           // Map your dynamic data here, with formatting and styling
           ...checkIns.map((row, rowIndex) =>
             [
-              { text: row.id.toString(), alignment: 'center', fontSize: 9 },
-              { text: row.room_number, alignment: 'center', fontSize: 9 },
-              { text: row.resort_name, alignment: 'left', fontSize: 9 },
-              { text: row.outlet_name, alignment: 'left', fontSize: 9 },
-              { text: row.table_number.toString(), alignment: 'center', fontSize: 9 },
-              { text: row.meal_type, alignment: 'left', fontSize: 9 },
-              { text: row.meal_plan, alignment: 'left', fontSize: 9 },
-              { text: row.check_in_date, alignment: 'center', fontSize: 9 },
-              { text: row.check_in_time, alignment: 'center', fontSize: 9 },
-              { text: row.status, alignment: 'center', fontSize: 9 },
-              { text: row.check_out_date, alignment: 'center', fontSize: 9 },
-              { text: row.check_out_time, alignment: 'center', fontSize: 9 },
-              { text: row.checkout_remarks, alignment: 'left', fontSize: 8 },
+              { text: row.id.toString(), style: 'tableCell', alignment: 'center' },
+              { text: row.room_number, style: 'tableCell', alignment: 'center' },
+              { text: row.resort_name, style: 'tableCell', alignment: 'left' },
+              { text: row.outlet_name, style: 'tableCell', alignment: 'left' },
+              { text: row.table_number.toString(), style: 'tableCell', alignment: 'center' },
+              { text: row.meal_type, style: 'tableCell', alignment: 'left' },
+              { text: row.meal_plan, style: 'tableCell', alignment: 'left' },
+              { text: row.check_in_date, style: 'tableCell', alignment: 'center' },
+              { text: row.check_in_time, style: 'tableCell', alignment: 'center' },
+              { 
+                text: row.status, 
+                style: row.status === 'checked-in' ? 'statusActive' : 'statusInactive', 
+                alignment: 'center' 
+              },
+              { text: row.check_out_date, style: 'tableCell', alignment: 'center' },
+              { text: row.check_out_time, style: 'tableCell', alignment: 'center' },
+              { text: row.checkout_remarks, style: 'remarksCell', alignment: 'center' },
             ].map((cell) => ({
               ...cell,
-              fillColor: rowIndex % 2 === 0 ? null : '#F8F9FA', // Zebra stripes
+              fillColor: rowIndex % 2 === 0 ? '#FFFFFF' : '#F9F7F4', // Professional zebra stripes
             }))
           ),
         ];
@@ -365,7 +398,8 @@ const generatePdfReportservice = ({
         // Define the PDF document structure
         const logoPath = path.join(__dirname, '../assets/Residence maldives log.png');
         const logoExists = fs.existsSync(logoPath);
-        
+
+
         const docDefinition = {
           pageSize: 'A3',
           pageOrientation: 'landscape',
@@ -374,155 +408,256 @@ const generatePdfReportservice = ({
             logo: logoPath
           } : {},
           content: [
-            // ===== HEADER =====
+            // ===== HEADER WITH LOGO AND CENTERED TITLE =====
             {
               columns: [
+                // Logo on the left
                 logoExists ? {
                   image: 'logo',
-                  width: 80,
-                  height: 60,
+                  width: 100,
+                  height: 65,
+                  margin: [0, 10, 0, 0],
                 } : {
                   text: 'THE RESIDENCE\nMALDIVES\nBY CENIZARO',
                   style: 'logoText',
                   width: 120,
+                  margin: [0, 10, 0, 0]
                 },
                 {
                   stack: [
-                    { text: 'Guest Check-In Report', style: 'header', alignment: 'center' },
-
                     {
-                      text: `Generated on: ${new Date().toLocaleString()}`,
-                      style: 'meta'
+                      text: 'Guest Check-In Report',
+                      style: 'header',
+                      alignment: 'center',
+                      margin: [0, 0, 0, 0],
+                      width: '*'
                     },
                     {
-                      text: `From: ${checkinStartDate}  To: ${checkinEndDate}`,
-                      style: 'subheader'
+                      text: `Generated on: ${new Date().toLocaleString()}`,
+                      style: 'metaCentered',
+                      alignment: 'center',
+                      margin: [0, 10, 0, 5]
                     },
                     {
                       text: `Generated by: ${generatedBy}`,
-                      style: 'meta'
+                      style: 'metaCentered',
+                      alignment: 'center',
+                      margin: [0, 0, 0, 0]
                     }
                   ],
-                  width: '*'
+                  alignment: 'center',
+                  margin: [0, 10, 0, 0],
+                },
+                
+                {
+                  text: '',
+                  width: 120
                 }
               ],
-              margin: [0, 0, 0, 20]
+              margin: [0, 0, 0, 30]
             },
+
+            
             // ===== DETAILED TABLE =====
+            {
+              text: 'Detailed Check-in Records',
+              style: 'sectionHeader',
+              margin: [0, 0, 0, 15]
+            },
             {
               table: {
                 headerRows: 1,
                 widths: ['3%', '6%', '10%', '12%', '6%', '7%', '7%', '7%', '7%', '7%', '7%', '7%', '14%'],
                 body: tableBody,
               },
-              width: '100%',
               layout: {
-                fillColor: (rowIndex) => (rowIndex === 0 ? '#2F4454' : null),
-                hLineWidth: (i, node) => (i === 0 || i === node.table.body.length ? 2 : 0.8),
-                vLineWidth: () => 0.8,
+                fillColor: (rowIndex) => (rowIndex === 0 ? '#614A24' : null),
+                hLineWidth: (i, node) => (i === 0 || i === node.table.body.length ? 2 : 0.5),
+                vLineWidth: () => 0.5,
                 hLineColor: (i, node) =>
-                  i === 0 || i === node.table.body.length ? '#2F4454' : '#dee2e6',
-                vLineColor: () => '#dee2e6',
-                paddingLeft: () => 10,
-                paddingRight: () => 10,
-                paddingTop: () => 15,
-                paddingBottom: () => 15,
+                  i === 0 || i === node.table.body.length ? '#614A24' : '#E0D6C7',
+                vLineColor: () => '#E0D6C7',
+                paddingLeft: () => 8,
+                paddingRight: () => 8,
+                paddingTop: () => 10,
+                paddingBottom: () => 10,
               },
+              margin: [0, 0, 0, 40]
             },
-            // ===== SUMMARY SECTION =====
+            // ===== FILTER SUMMARY =====
             {
-              style: 'summaryTable',
+              text: 'Report Summary',
+              style: 'sectionHeader',
+              margin: [0, 0, 0, 10]
+            },
+            {
               table: {
-                widths: ['25%', '25%', '25%', '25%'],
+                widths: ['20%', '20%', '20%',],
                 body: [
                   [
-                    { text: 'Total Check-Ins', style: 'summaryHeader' },
-                    //{ text: 'Average Stay Duration', style: 'summaryHeader' },
-                    //{ text: 'Occupancy Rate', style: 'summaryHeader' },
-                    //{ text: 'Returning Guests', style: 'summaryHeader' }
+                    { text: 'Total Records', style: 'summaryHeader' },
+                    { text: 'Check-ins', style: 'summaryHeader' },
+                    { text: 'Check-outs', style: 'summaryHeader' },
                   ],
                   [
                     { text: checkIns.length.toString(), style: 'summaryValue' },
-                    //{ text: avgStayDuration + ' days', style: 'summaryValue' },
-                    //{ text: occupancyRate + '%', style: 'summaryValue' },
-                    //{ text: returningGuests.toString(), style: 'summaryValue' }
+                    { text: checkIns.filter(c => c.status === 'checked-in').length.toString(), style: 'summaryValue' },
+                    { text: checkIns.filter(c => c.status !== 'checked-in').length.toString(), style: 'summaryValue' },
                   ]
                 ]
+                
               },
-              layout: 'lightHorizontalLines',
-              margin: [0, 0, 0, 20]
+              layout: {
+                fillColor: (rowIndex) => (rowIndex === 0 ? '#614A24' : '#F9F7F4'),
+                hLineWidth: () => 1,
+                vLineWidth: () => 1,
+                hLineColor: () => '#9A8768',
+                vLineColor: () => '#9A8768',
+                paddingLeft: () => 12,
+                paddingRight: () => 12,
+                paddingTop: () => 8,
+                paddingBottom: () => 8,
+                alignment: 'center',
+              },
+              margin: [0, 0, 0, 0],
             },
 
           ],
           styles: {
             logoText: {
-              fontSize: 12,
+              fontSize: 14,
               bold: true,
-              color: '#8B4513',
+              color: '#614A24',
               alignment: 'center',
-              lineHeight: 1.2
+              lineHeight: 1.3
             },
             header: {
-              fontSize: 22,
+              fontSize: 28,
               bold: true,
-              color: '#2F4454',
-              margin: [0, 0, 0, 8]
+              color: '#614A24',
+              margin: [0, 0, 0, 5]
             },
-            subheader: {
+            sectionHeader: {
+              fontSize: 16,
+              bold: true,
+              color: '#614A24',
+              margin: [0, 10, 0, 5]
+            },
+            metaLabel: {
+              fontSize: 11,
+              bold: true,
+              color: '#614A24',
+              alignment: 'right'
+            },
+            metaValue: {
+              fontSize: 11,
+              color: '#333333',
+              alignment: 'left'
+            },
+            metaCentered: {
               fontSize: 12,
-              bold: true,
-              margin: [0, 0, 0, 2]
-            },
-            meta: {
-              fontSize: 10,
-              color: '#666',
-              margin: [0, 0, 0, 2]
-            },
-            summaryTable: {
-              margin: [0, 0, 0, 10]
+              color: '#614A24',
+              bold: false
             },
             summaryHeader: {
-              fontSize: 11,
+              fontSize: 12,
               bold: true,
-              fillColor: '#2F4454',
               color: 'white',
-              alignment: 'center',
-              margin: [0, 5, 0, 5]
+              alignment: 'center'
             },
             summaryValue: {
-              fontSize: 11,
+              fontSize: 13,
               bold: true,
-              alignment: 'center',
-              margin: [0, 5, 0, 5]
+              color: '#614A24',
+              alignment: 'center'
             },
             tableHeader: {
               bold: true,
-              fontSize: 10,
+              fontSize: 11,
               color: 'white'
             },
             tableCell: {
-              fontSize: 9,
-              color: '#212529'
+              fontSize: 10,
+              color: '#2C2C2C',
+              margin: [0, 2, 0, 2]
             },
-            sectionHeader: {
+            statusActive: {
+              fontSize: 10,
+              bold: true,
+              color: '#28a745',
+              margin: [0, 2, 0, 2]
+            },
+            statusInactive: {
+              fontSize: 10,
+              bold: true,
+              color: '#dc3545',
+              margin: [0, 2, 0, 2]
+            },
+            remarksCell: {
+              fontSize: 9,
+              color: '#555555',
+              margin: [0, 2, 0, 2]
+            },
+            noteHeader: {
+              fontSize: 12,
+              bold: true,
+              color: '#614A24'
+            },
+            noteText: {
+              fontSize: 10,
+              color: '#666666',
+              lineHeight: 1.4
+            },
+            footerText: {
+              fontSize: 9,
+              color: '#9A8768',
+              italics: true,
+              margin: [0, 10, 0, 20]
+            },
+            continuationHeader: {
               fontSize: 14,
               bold: true,
-              color: '#2F4454'
-            },
-            notes: {
-              fontSize: 10,
-              color: '#444'
+              color: '#614A24'
             }
           },
           defaultStyle: {
             font: 'Helvetica'
+          },
+          footer: function(currentPage, pageCount) {
+            return {
+              columns: [
+                {
+                  text: 'The Residence Maldives - Guest Check-in Report',
+                  style: 'footerText',
+                  alignment: 'left',
+                  margin: [40, 10, 0, 0]
+                },
+                {
+                  text: `Page ${currentPage} of ${pageCount}`,
+                  style: 'footerText',
+                  alignment: 'right',
+                  margin: [0, 10, 40, 0]
+                }
+              ]
+            };
+          },
+          header: function(currentPage, pageCount, pageSize) {
+            if (currentPage > 1) {
+              return {
+                text: 'Guest Check-In Report (Continued)',
+                style: 'continuationHeader',
+                alignment: 'center',
+                margin: [0, 20, 0, 20]
+              };
+            }
+            return null;
           }
         };
 
 
         const pdfDoc = printer.createPdfKitDocument(docDefinition);
 
-        const outputFile = `./reports/checkin_report_${Date.now()}.pdf`;
+        const outputFile = `./assets/checkin_report_${Date.now()}.pdf`;
         const stream = fs.createWriteStream(outputFile);
 
         pdfDoc.pipe(stream);
