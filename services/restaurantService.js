@@ -28,10 +28,17 @@ const createRestaurant = async ({restaurantName, resort_id}) => {
     const existingRestaurant = await Restaurant.findOne({ 
         where: { 
             restaurantName : restaurantName, 
-            resort_id: resort_id
-        }});
+        },
+        include: [
+            {
+                model: Resort,
+                as: "resort",
+                attributes: ['id', 'name'],
+            },
+        ],
+    });
     if (existingRestaurant) {
-        throw new AppError(400, `Restaurant with name- ${restaurantName} already exists`);
+        throw new AppError(400, `Restaurant with name- ${restaurantName} already exists in resort ${existingRestaurant.resort.name}`);
     }
     const restaurant = await Restaurant.create({restaurantName, resort_id})
     return restaurant;
