@@ -20,18 +20,26 @@ const createRoom = async(roomData)=>{
         throw new AppError(404, `Resort with ID ${roomData.resort_id} not found.`);
     }
 
-    console.log('Resort found:', resort.name);
-
     // Check if room already exists
     const existingRoom = await Room.findOne({
         where: {
             room_number: roomData.room_number,
-            resort_id: roomData.resort_id
-        }
+        },
+
+        include: [
+            {
+                model: Resort,
+                as: "Resort",
+                attributes: ['id', 'name'],
+            },
+        ],
     });
+
     if (existingRoom) {
-        throw new AppError(409, `Room with number ${roomData.room_number} already exists in resort ${resort.name}.`);
+        throw new AppError(409, `Room with number ${existingRoom.room_number} already exists in resort ${existingRoom.Resort.name}.`);
     }
+
+    console.log(roomData);
 
     return await Room.create(roomData);
 }
